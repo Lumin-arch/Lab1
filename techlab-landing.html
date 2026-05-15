@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechLab Pro | מעבדת מחשבים ושירותים דיגיטליים</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' },
+            emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' },
+            slate: {
+              850: '#0f172a',
+              900: '#0b1120',
+              950: '#060d1a'
+            }
+          },
+          fontFamily: {
+            hebrew: ['Heebo', 'sans-serif'],
+            mono: ['Space Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: #060d1a;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    /* ─── Noise overlay ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── Grid background ─── */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ─── Glow effects ─── */
+    .glow-cyan { box-shadow: 0 0 30px rgba(6,182,212,0.3), 0 0 60px rgba(6,182,212,0.1); }
+    .glow-emerald { box-shadow: 0 0 30px rgba(16,185,129,0.3), 0 0 60px rgba(16,185,129,0.1); }
+    .text-glow-cyan { text-shadow: 0 0 20px rgba(6,182,212,0.6); }
+    .text-glow-emerald { text-shadow: 0 0 20px rgba(16,185,129,0.6); }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      backdrop-filter: blur(20px);
+      background: rgba(6,13,26,0.85);
+      border-bottom: 1px solid rgba(6,182,212,0.15);
+    }
+    .nav-link {
+      position: relative;
+      color: #94a3b8;
+      transition: color 0.3s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      right: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      transition: width 0.3s;
+    }
+    .nav-link:hover { color: #e2e8f0; }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ─── Hero ─── */
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 50% at 80% 50%, rgba(16,185,129,0.07) 0%, transparent 60%),
+                  #060d1a;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      color: #22d3ee;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22d3ee;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ─── Buttons ─── */
+    .btn-primary {
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #22d3ee, #06b6d4);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(6,182,212,0.4); }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-emerald:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.4); }
+
+    .btn-outline {
+      background: transparent;
+      color: #22d3ee;
+      padding: 13px 31px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: 1px solid rgba(6,182,212,0.4);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-outline:hover {
+      background: rgba(6,182,212,0.1);
+      border-color: #06b6d4;
+    }
+
+    /* ─── Service cards ─── */
+    .service-card {
+      background: rgba(15,23,42,0.8);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 32px;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 100%; height: 2px;
+      transition: opacity 0.3s;
+    }
+    .service-card.cyan::before { background: linear-gradient(90deg, transparent, #06b6d4, transparent); }
+    .service-card.emerald::before { background: linear-gradient(90deg, transparent, #10b981, transparent); }
+    .service-card:hover { transform: translateY(-4px); }
+    .service-card.cyan:hover { border-color: rgba(6,182,212,0.3); box-shadow: 0 20px 40px rgba(6,182,212,0.1); }
+    .service-card.emerald:hover { border-color: rgba(16,185,129,0.3); box-shadow: 0 20px 40px rgba(16,185,129,0.1); }
+
+    .service-icon {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+    .service-icon.cyan { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.2); }
+    .service-icon.emerald { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+
+    /* ─── Section title ─── */
+    .section-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ─── Divider ─── */
+    .divider-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), rgba(16,185,129,0.3), transparent);
+    }
+
+    /* ─── Gallery ─── */
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .gallery-item:hover img { transform: scale(1.08); }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(6,13,26,0.95) 0%, rgba(6,13,26,0.3) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+    /* ─── Stats ─── */
+    .stat-card {
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* ─── Form ─── */
+    .form-field {
+      width: 100%;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #e2e8f0;
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      outline: none;
+    }
+    .form-field::placeholder { color: #475569; }
+    .form-field:focus {
+      border-color: rgba(6,182,212,0.5);
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.1);
+    }
+    select.form-field option { background: #0f172a; }
+
+    /* ─── WhatsApp FAB ─── */
+    .whatsapp-fab {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      width: 60px; height: 60px;
+      background: #25d366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: white;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.5);
+      z-index: 1000;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+    }
+    .whatsapp-fab:hover { transform: scale(1.1) translateY(-2px); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+    .whatsapp-fab::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid rgba(37,211,102,0.4);
+      animation: fab-ring 2s infinite;
+    }
+    @keyframes fab-ring {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    /* ─── Mobile menu ─── */
+    .mobile-menu {
+      display: none;
+      background: rgba(6,13,26,0.98);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(6,182,212,0.1);
+    }
+    .mobile-menu.open { display: block; }
+
+    /* ─── Footer ─── */
+    .footer-gradient {
+      background: linear-gradient(to top, rgba(6,182,212,0.04) 0%, transparent 100%);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* ─── Scroll animations ─── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Typewriter cursor ─── */
+    .cursor-blink::after {
+      content: '|';
+      color: #22d3ee;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ─── Process steps ─── */
+    .step-connector {
+      position: absolute;
+      top: 28px;
+      left: -50%;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3));
+    }
+
+    /* ─── Testimonial card ─── */
+    .testimonial-card {
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+    }
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 4rem;
+      color: rgba(6,182,212,0.2);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #060d1a; }
+    ::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.3); border-radius: 3px; }
+
+    /* ─── Selection ─── */
+    ::selection { background: rgba(6,182,212,0.3); }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2rem; }
+      .desktop-nav { display: none; }
+    }
+    @media (min-width: 769px) {
+      .hamburger-btn { display: none; }
+    }
+  </style>
+</head>
+<body class="grid-bg">
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav class="navbar fixed top-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#home" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #06b6d4, #10b981);">
+          <i class="fa-solid fa-microchip text-white text-lg"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="font-black text-white text-lg" style="letter-spacing:-0.03em;">TechLab <span class="text-cyan-400">Pro</span></div>
+          <div class="text-xs text-slate-500 font-mono" style="font-family:'Space Mono',monospace">מעבדת הטכנולוגיה שלך</div>
+        </div>
+      </a>
+
+      <!-- Desktop links -->
+      <div class="desktop-nav flex items-center gap-8">
+        <a href="#services" class="nav-link text-sm font-medium">שירותים</a>
+        <a href="#portfolio" class="nav-link text-sm font-medium">עבודות</a>
+        <a href="#about" class="nav-link text-sm font-medium">אודות</a>
+        <a href="#testimonials" class="nav-link text-sm font-medium">לקוחות</a>
+        <a href="#contact" class="nav-link text-sm font-medium">צור קשר</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="#contact" class="btn-primary hidden md:inline-flex items-center gap-2">
+          <span><i class="fa-brands fa-whatsapp ml-2"></i>דברו איתנו</span>
+        </a>
+        <button class="hamburger-btn text-slate-400 hover:text-white transition-colors p-2" onclick="toggleMenu()">
+          <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="px-6 py-4 flex flex-col gap-4">
+        <a href="#services" class="text-slate-300 font-medium py-2 border-b border-white/5" onclick="toggleMenu()">שירותים</a>
+        <a href="#portfolio" class="text-slate-300 font-medium py-2 border-b border-white/5" onclick="toggleMenu()">עבודות</a>
+        <a href="#about" class="text-slate-300 font-medium py-2 border-b border-white/5" onclick="toggleMenu()">אודות</a>
+        <a href="#testimonials" class="text-slate-300 font-medium py-2 border-b border-white/5" onclick="toggleMenu()">לקוחות</a>
+        <a href="#contact" class="text-slate-300 font-medium py-2" onclick="toggleMenu()">צור קשר</a>
+        <a href="#contact" class="btn-primary text-center mt-2" onclick="toggleMenu()"><span>דברו איתנו עכשיו</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════ HERO ══════════ -->
+  <section id="home" class="hero-gradient min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
+    <!-- Background decorations -->
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-20 left-10 w-72 h-72 rounded-full opacity-5" style="background: radial-gradient(circle, #06b6d4, transparent);"></div>
+      <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full opacity-5" style="background: radial-gradient(circle, #10b981, transparent);"></div>
+      <!-- Floating grid accent -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-20" style="background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(6,182,212,0.06), transparent);"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 w-full relative z-10">
+      <div class="max-w-4xl">
+        <!-- Badge -->
+        <div class="hero-badge mb-8 fade-in">
+          <div class="pulse-dot"></div>
+          <span>מוכנים לשירות · פתרונות טכנולוגיים מקצה לקצה</span>
+        </div>
+
+        <!-- Main headline -->
+        <h1 class="hero-title text-white mb-6 fade-in" style="transition-delay:0.1s;">
+          מעבדה לחומרה.<br/>
+          <span class="text-glow-cyan" style="background: linear-gradient(135deg, #22d3ee, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">מומחיות דיגיטלית.</span><br/>
+          <span class="text-glow-emerald" style="background: linear-gradient(135deg, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">תוצאות אמיתיות.</span>
+        </h1>
+
+        <!-- Sub-headline -->
+        <p class="text-slate-400 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl fade-in" style="transition-delay:0.2s;">
+          אנו מציעים שני עולמות בגג אחד — <strong class="text-cyan-400">מעבדת מחשבים ואלקטרוניקה</strong> מקצועית לכל תיקון ושדרוג,
+          לצד <strong class="text-emerald-400">שירותים דיגיטליים מתקדמים</strong> לבניית אתרים, אפליקציות ופתרונות תוכנה.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-wrap gap-4 fade-in" style="transition-delay:0.3s;">
+          <a href="#services" class="btn-primary inline-flex items-center gap-2">
+            <span><i class="fa-solid fa-bolt ml-2"></i>גלו את השירותים שלנו</span>
+          </a>
+          <a href="#contact" class="btn-outline inline-flex items-center gap-2">
+            <i class="fa-solid fa-message ml-2"></i>פנו אלינו עכשיו
+          </a>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="grid grid-cols-3 md:grid-cols-3 gap-4 mt-16 fade-in" style="transition-delay:0.4s;">
+          <div class="stat-card">
+            <div class="text-2xl md:text-3xl font-black text-cyan-400 mb-1">500+</div>
+            <div class="text-xs text-slate-500">מחשבים תוקנו</div>
+          </div>
+          <div class="stat-card">
+            <div class="text-2xl md:text-3xl font-black text-emerald-400 mb-1">120+</div>
+            <div class="text-xs text-slate-500">פרויקטים דיגיטליים</div>
+          </div>
+          <div class="stat-card">
+            <div class="text-2xl md:text-3xl font-black text-white mb-1">98%</div>
+            <div class="text-xs text-slate-500">שביעות רצון לקוחות</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-line"></div>
+
+  <!-- ══════════ SERVICES ══════════ -->
+  <section id="services" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Section header -->
+      <div class="text-center mb-16 fade-in">
+        <div class="section-tag text-cyan-500 mb-3">// שירותים שלנו</div>
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">שני עולמות. מומחיות אחת.</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">בין אם אתם צריכים תיקון מהיר למחשב או פיתוח אתר מותאם אישית — אנחנו הכתובת.</p>
+      </div>
+
+      <!-- Two-branch layout -->
+      <div class="grid md:grid-cols-2 gap-8 mb-16">
+
+        <!-- Hardware branch -->
+        <div class="relative fade-in">
+          <div class="rounded-2xl p-1" style="background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(6,182,212,0.05));">
+            <div class="rounded-xl p-8" style="background: #080e1c;">
+              <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl" style="background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); color: #22d3ee;">
+                  <i class="fa-solid fa-screwdriver-wrench"></i>
+                </div>
+                <div>
+                  <div class="section-tag text-cyan-500 text-xs mb-1">Branch 01</div>
+                  <h3 class="text-xl font-black text-white">מעבדת מחשבים ואלקטרוניקה</h3>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 gap-3">
+                <div class="service-card cyan">
+                  <div class="service-icon cyan"><i class="fa-solid fa-laptop"></i></div>
+                  <h4 class="font-bold text-white mb-2">תיקון מחשבים ולפטופים</h4>
+                  <p class="text-slate-400 text-sm">אבחון מהיר, החלפת חלקים ושחזור מערכת הפעלה. זמן תגובה מינימלי.</p>
+                </div>
+                <div class="service-card cyan">
+                  <div class="service-icon cyan"><i class="fa-solid fa-memory"></i></div>
+                  <h4 class="font-bold text-white mb-2">שדרוגי חומרה וביצועים</h4>
+                  <p class="text-slate-400 text-sm">הוספת RAM, החלפה ל-SSD, שדרוג כרטיסי מסך ועוד — תוצאות מורגשות מייד.</p>
+                </div>
+                <div class="service-card cyan">
+                  <div class="service-icon cyan"><i class="fa-solid fa-fan"></i></div>
+                  <h4 class="font-bold text-white mb-2">ניקוי, קירור ותחזוקה מונעת</h4>
+                  <p class="text-slate-400 text-sm">ניקוי יסודי, החלפת משחת תרמית ובדיקת מערכות קירור.</p>
+                </div>
+                <div class="service-card cyan">
+                  <div class="service-icon cyan"><i class="fa-solid fa-database"></i></div>
+                  <h4 class="font-bold text-white mb-2">שחזור נתונים ואחסון</h4>
+                  <p class="text-slate-400 text-sm">שחזור קבצים מדיסקים פגועים, הגדרת מערכות גיבוי ואחסון ענן.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digital branch -->
+        <div class="relative fade-in" style="transition-delay:0.15s;">
+          <div class="rounded-2xl p-1" style="background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(16,185,129,0.05));">
+            <div class="rounded-xl p-8" style="background: #080e1c;">
+              <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399;">
+                  <i class="fa-solid fa-code"></i>
+                </div>
+                <div>
+                  <div class="section-tag text-emerald-400 text-xs mb-1">Branch 02</div>
+                  <h3 class="text-xl font-black text-white">שירותים דיגיטליים</h3>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 gap-3">
+                <div class="service-card emerald">
+                  <div class="service-icon emerald"><i class="fa-solid fa-globe"></i></div>
+                  <h4 class="font-bold text-white mb-2">בניית אתרי אינטרנט מותאמים</h4>
+                  <p class="text-slate-400 text-sm">אתרים מרשימים, מהירים ומותאמים לסמארטפון — עם עיצוב ייחודי לעסק שלכם.</p>
+                </div>
+                <div class="service-card emerald">
+                  <div class="service-icon emerald"><i class="fa-solid fa-rocket"></i></div>
+                  <h4 class="font-bold text-white mb-2">דפי נחיתה ממירים</h4>
+                  <p class="text-slate-400 text-sm">Landing pages עם מסרים חדים, עיצוב שיווקי ואינטגרציה מלאה לקמפיינים.</p>
+                </div>
+                <div class="service-card emerald">
+                  <div class="service-icon emerald"><i class="fa-solid fa-puzzle-piece"></i></div>
+                  <h4 class="font-bold text-white mb-2">פיתוח תוכנה מותאמת אישית</h4>
+                  <p class="text-slate-400 text-sm">מערכות ניהול, אפליקציות ווב ופתרונות ייחודיים שפותחו בדיוק לצרכי העסק שלכם.</p>
+                </div>
+                <div class="service-card emerald">
+                  <div class="service-icon emerald"><i class="fa-solid fa-chart-line"></i></div>
+                  <h4 class="font-bold text-white mb-2">SEO, ניהול ותחזוקה</h4>
+                  <p class="text-slate-400 text-sm">קידום אורגני, עדכוני תוכן, אבטחה ותחזוקה שוטפת לאתר שתמיד פעיל.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Process -->
+      <div class="fade-in">
+        <div class="text-center mb-10">
+          <h3 class="text-2xl font-black text-white">איך זה עובד?</h3>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="text-center p-6 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-black text-cyan-400" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">1</div>
+            <h4 class="font-bold text-white mb-2">פנייה ראשונית</h4>
+            <p class="text-slate-500 text-sm">שלחו הודעה בוואטסאפ או מלאו את הטופס</p>
+          </div>
+          <div class="text-center p-6 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-black text-cyan-400" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">2</div>
+            <h4 class="font-bold text-white mb-2">אבחון ותכנון</h4>
+            <p class="text-slate-500 text-sm">נבין את הצורך ונציע פתרון מותאם</p>
+          </div>
+          <div class="text-center p-6 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-black text-emerald-400" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">3</div>
+            <h4 class="font-bold text-white mb-2">ביצוע מקצועי</h4>
+            <p class="text-slate-500 text-sm">עבודה מהירה ואיכותית עם עדכונים שוטפים</p>
+          </div>
+          <div class="text-center p-6 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-black text-emerald-400" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">4</div>
+            <h4 class="font-bold text-white mb-2">מסירה ותמיכה</h4>
+            <p class="text-slate-500 text-sm">אחריות מלאה ותמיכה גם לאחר סיום העבודה</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider-line"></div>
+
+  <!-- ══════════ PORTFOLIO ══════════ -->
+  <section id="portfolio" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="text-center mb-14 fade-in">
+        <div class="section-tag text-emerald-400 mb-3">// הפורטפוליו שלנו</div>
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">עבודות שאנחנו גאים בהן</h2>
+        <p class="text-slate-400 max-w-lg mx-auto">מבנייה של מחשבי גיימינג מותאמים ועד אתרי אי-קומרס מורכבים — כל פרויקט מדבר בעד עצמו.</p>
+      </div>
+
+      <!-- Gallery grid -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 fade-in">
+
+        <!-- Item 1 – tall -->
+        <div class="gallery-item row-span-2" style="height: 420px;">
+          <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=600&q=80" alt="Custom PC Build" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-cyan-400 mb-1">חומרה</span>
+            <h4 class="text-white font-bold">בניית מחשב גיימינג מותאם</h4>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&q=80" alt="Web Development" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-emerald-400 mb-1">דיגיטל</span>
+            <h4 class="text-white font-bold">אתר תדמית לעסק</h4>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80" alt="Electronics Repair" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-cyan-400 mb-1">חומרה</span>
+            <h4 class="text-white font-bold">תיקון לוח אם</h4>
+          </div>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="Landing Page" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-emerald-400 mb-1">דיגיטל</span>
+            <h4 class="text-white font-bold">דף נחיתה ממיר</h4>
+          </div>
+        </div>
+
+        <!-- Item 5 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1601931935821-5fbe71157695?w=600&q=80" alt="Laptop Repair" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-cyan-400 mb-1">חומרה</span>
+            <h4 class="text-white font-bold">שחזור לפטופ</h4>
+          </div>
+        </div>
+
+        <!-- Item 6 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80" alt="Software Project" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-emerald-400 mb-1">דיגיטל</span>
+            <h4 class="text-white font-bold">מערכת ניהול עסקי</h4>
+          </div>
+        </div>
+
+        <!-- Item 7 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&q=80" alt="Workstation" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-cyan-400 mb-1">חומרה</span>
+            <h4 class="text-white font-bold">סטנד-אפ תחנת עבודה</h4>
+          </div>
+        </div>
+
+        <!-- Item 8 -->
+        <div class="gallery-item" style="height: 200px;">
+          <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&q=80" alt="E-commerce" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="text-xs font-mono text-emerald-400 mb-1">דיגיטל</span>
+            <h4 class="text-white font-bold">חנות אונליין</h4>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider-line"></div>
+
+  <!-- ══════════ ABOUT ══════════ -->
+  <section id="about" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+
+        <div class="fade-in">
+          <div class="section-tag text-cyan-500 mb-4">// מי אנחנו</div>
+          <h2 class="text-3xl md:text-4xl font-black text-white mb-6">טכנולוגיה היא<br/><span style="background: linear-gradient(135deg, #22d3ee, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">השפה שלנו</span></h2>
+          <p class="text-slate-400 leading-relaxed mb-6">
+            TechLab Pro נוסדה מתוך אהבה אמיתית לטכנולוגיה. אנחנו צוות של מהנדסים ומפתחים עם ניסיון של למעלה מ-10 שנים בתחום החומרה והתוכנה גם יחד.
+          </p>
+          <p class="text-slate-400 leading-relaxed mb-8">
+            אנו מאמינים שטכנולוגיה טובה לא צריכה להיות מורכבת — היא פשוט צריכה <strong class="text-white">לעבוד</strong>. לכן אנחנו מדברים בשפת הלקוח, מסבירים הכל בפשטות ומספקים פתרון אמיתי לכל בעיה.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              <i class="fa-solid fa-circle-check text-cyan-400"></i>
+              ניסיון של 10+ שנים
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              <i class="fa-solid fa-circle-check text-cyan-400"></i>
+              אחריות על כל עבודה
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              תמיכה 24/7
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              מחירים הוגנים ושקופים
+            </div>
+          </div>
+        </div>
+
+        <div class="fade-in grid grid-cols-2 gap-4" style="transition-delay:0.15s;">
+          <div class="rounded-2xl overflow-hidden" style="height: 220px;">
+            <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&q=80" class="w-full h-full object-cover" alt="Lab work" />
+          </div>
+          <div class="rounded-2xl overflow-hidden mt-8" style="height: 220px;">
+            <img src="https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?w=500&q=80" class="w-full h-full object-cover" alt="Coding" />
+          </div>
+          <div class="col-span-2 rounded-2xl overflow-hidden" style="height: 180px;">
+            <img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&q=80" class="w-full h-full object-cover" alt="Team work" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-line"></div>
+
+  <!-- ══════════ TESTIMONIALS ══════════ -->
+  <section id="testimonials" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="text-center mb-14 fade-in">
+        <div class="section-tag text-emerald-400 mb-3">// מה אומרים עלינו</div>
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">לקוחות מרוצים מדברים</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 fade-in">
+
+        <div class="testimonial-card">
+          <div class="flex items-center gap-1 mb-4">
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">
+            "הלפטופ שלי לא נדלק כבר שלושה ימים. הבאתי אותו ל-TechLab וב-24 שעות קיבלתי אותו בחזרה תקין לחלוטין. שירות מדהים ומחיר הוגן!"
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background: linear-gradient(135deg, #06b6d4, #10b981);">מ</div>
+            <div>
+              <div class="font-bold text-white text-sm">מיכל כהן</div>
+              <div class="text-xs text-slate-500">בעלת עסק, תל אביב</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="flex items-center gap-1 mb-4">
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">
+            "הזמנתי דף נחיתה לקמפיין שלי ופשוט אני לא מאמין לתוצאות. עיצוב מדהים, מהיר, ומותאם לסמארטפון. ההמרות עלו ב-40% תוך שבוע."
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background: linear-gradient(135deg, #10b981, #06b6d4);">ד</div>
+            <div>
+              <div class="font-bold text-white text-sm">דוד לוי</div>
+              <div class="text-xs text-slate-500">מנהל שיווק, חיפה</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="flex items-center gap-1 mb-4">
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+            <i class="fa-solid fa-star text-yellow-400 text-sm"></i>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">
+            "בנו לי מחשב גיימינג לפי תקציב ודרישות ספציפיות. הידע המקצועי שלהם פשוט יוצא מן הכלל. ממליץ לכל מי שרציני בנושא."
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background: linear-gradient(135deg, #818cf8, #06b6d4);">ר</div>
+            <div>
+              <div class="font-bold text-white text-sm">רן אברהם</div>
+              <div class="text-xs text-slate-500">גיימר מקצועי, ירושלים</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-line"></div>
+
+  <!-- ══════════ CONTACT ══════════ -->
+  <section id="contact" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="text-center mb-14 fade-in">
+        <div class="section-tag text-cyan-500 mb-3">// צור קשר</div>
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">מוכנים להתחיל?</h2>
+        <p class="text-slate-400 max-w-lg mx-auto">מלאו את הטופס ונחזור אליכם תוך שעה. לחלופין, לחצו שלחו ישירות לוואטסאפ שלנו.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-12 items-start fade-in">
+
+        <!-- Contact info -->
+        <div>
+          <div class="space-y-6 mb-10">
+            <div class="flex items-center gap-4 p-5 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-cyan-400" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500 mb-1">וואטסאפ</div>
+                <div class="text-white font-semibold">זמינים 24/7 לכל שאלה</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-5 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-emerald-400" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500 mb-1">מיקום</div>
+                <div class="text-white font-semibold">המעבדה שלנו — על פי תיאום</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-5 rounded-xl" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05);">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-cyan-400" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500 mb-1">שעות פעילות</div>
+                <div class="text-white font-semibold">ראשון–חמישי: 9:00–20:00 | שישי: 9:00–15:00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick WhatsApp buttons -->
+          <div class="space-y-3">
+            <p class="text-slate-400 text-sm mb-3">שלחו לנו הודעה מהירה:</p>
+            <button onclick="quickWhatsApp('שלום! אני מעוניין בשירות תיקון/שדרוג חומרה')" class="w-full flex items-center gap-3 p-4 rounded-xl text-right transition-all hover:scale-[1.01]" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">
+              <i class="fa-solid fa-screwdriver-wrench text-cyan-400"></i>
+              <span class="text-white text-sm">אני צריך תיקון / שדרוג חומרה</span>
+              <i class="fa-solid fa-chevron-left text-slate-600 mr-auto"></i>
+            </button>
+            <button onclick="quickWhatsApp('שלום! אני מעוניין בבניית אתר / שירות דיגיטלי')" class="w-full flex items-center gap-3 p-4 rounded-xl text-right transition-all hover:scale-[1.01]" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+              <i class="fa-solid fa-code text-emerald-400"></i>
+              <span class="text-white text-sm">אני צריך אתר / שירות דיגיטלי</span>
+              <i class="fa-solid fa-chevron-left text-slate-600 mr-auto"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="rounded-2xl p-8" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.07);">
+          <h3 class="text-xl font-bold text-white mb-6">שלחו פרטים ונחזור אליכם</h3>
+
+          <div class="space-y-4" id="contact-form">
+            <div>
+              <label class="text-sm text-slate-400 mb-2 block">שם מלא *</label>
+              <input type="text" id="f-name" class="form-field" placeholder="ישראל ישראלי" />
+            </div>
+            <div>
+              <label class="text-sm text-slate-400 mb-2 block">מספר טלפון *</label>
+              <input type="tel" id="f-phone" class="form-field" placeholder="050-0000000" dir="ltr" />
+            </div>
+            <div>
+              <label class="text-sm text-slate-400 mb-2 block">סוג שירות *</label>
+              <select id="f-service" class="form-field">
+                <option value="" disabled selected>בחר שירות...</option>
+                <optgroup label="🔧 מעבדת חומרה">
+                  <option value="תיקון מחשב / לפטופ">תיקון מחשב / לפטופ</option>
+                  <option value="שדרוג חומרה">שדרוג חומרה (RAM, SSD, GPU...)</option>
+                  <option value="ניקוי ותחזוקה">ניקוי ותחזוקה מונעת</option>
+                  <option value="שחזור נתונים">שחזור נתונים</option>
+                  <option value="בניית מחשב מותאם">בניית מחשב מותאם אישית</option>
+                </optgroup>
+                <optgroup label="💻 שירותים דיגיטליים">
+                  <option value="בניית אתר אינטרנט">בניית אתר אינטרנט</option>
+                  <option value="דף נחיתה">דף נחיתה שיווקי</option>
+                  <option value="פיתוח תוכנה מותאמת">פיתוח תוכנה מותאמת</option>
+                  <option value="SEO ותחזוקת אתר">SEO ותחזוקת אתר</option>
+                </optgroup>
+                <option value="אחר">אחר / לא בטוח</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-slate-400 mb-2 block">תיאור הצורך שלך</label>
+              <textarea id="f-message" class="form-field resize-none" rows="4" placeholder="ספרו לנו על הבעיה או הפרויקט שלכם..."></textarea>
+            </div>
+
+            <button onclick="submitToWhatsApp()" class="btn-primary w-full mt-2">
+              <span class="flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                שלחו לנו בוואטסאפ
+              </span>
+            </button>
+            <p class="text-xs text-slate-600 text-center">לאחר לחיצה תועברו לוואטסאפ עם הפרטים מוכנים לשליחה</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="footer-gradient py-14 px-6">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+
+        <!-- Brand -->
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #06b6d4, #10b981);">
+              <i class="fa-solid fa-microchip text-white text-lg"></i>
+            </div>
+            <div class="font-black text-white text-xl">TechLab <span class="text-cyan-400">Pro</span></div>
+          </div>
+          <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
+            מעבדת מחשבים ושירותים דיגיטליים — הפתרון הטכנולוגי המקיף לעסקים ואנשים פרטיים.
+          </p>
+          <div class="flex gap-3 mt-6">
+            <a href="#" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
+              <i class="fa-brands fa-facebook"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
+              <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
+              <i class="fa-brands fa-tiktok"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Links 1 -->
+        <div>
+          <h4 class="text-white font-bold mb-4 text-sm">שירותי חומרה</h4>
+          <ul class="space-y-3 text-sm text-slate-500">
+            <li><a href="#services" class="hover:text-cyan-400 transition-colors">תיקון מחשבים</a></li>
+            <li><a href="#services" class="hover:text-cyan-400 transition-colors">שדרוגי חומרה</a></li>
+            <li><a href="#services" class="hover:text-cyan-400 transition-colors">ניקוי ותחזוקה</a></li>
+            <li><a href="#services" class="hover:text-cyan-400 transition-colors">שחזור נתונים</a></li>
+            <li><a href="#services" class="hover:text-cyan-400 transition-colors">מחשבים מותאמים</a></li>
+          </ul>
+        </div>
+
+        <!-- Links 2 -->
+        <div>
+          <h4 class="text-white font-bold mb-4 text-sm">שירותים דיגיטליים</h4>
+          <ul class="space-y-3 text-sm text-slate-500">
+            <li><a href="#services" class="hover:text-emerald-400 transition-colors">בניית אתרים</a></li>
+            <li><a href="#services" class="hover:text-emerald-400 transition-colors">דפי נחיתה</a></li>
+            <li><a href="#services" class="hover:text-emerald-400 transition-colors">פיתוח תוכנה</a></li>
+            <li><a href="#services" class="hover:text-emerald-400 transition-colors">SEO ותחזוקה</a></li>
+            <li><a href="#portfolio" class="hover:text-emerald-400 transition-colors">פורטפוליו</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="divider-line mb-6"></div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+        <div>© 2024 TechLab Pro. כל הזכויות שמורות.</div>
+        <div class="font-mono text-xs" style="font-family:'Space Mono',monospace; color: rgba(6,182,212,0.4);">
+          built with <span class="text-red-500">♥</span> &amp; <span class="text-cyan-600">code</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ══════════ WHATSAPP FAB ══════════ -->
+  <a href="#" id="whatsapp-fab" class="whatsapp-fab" onclick="openWhatsApp(event)" title="שלחו הודעה בוואטסאפ">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- ══════════ JAVASCRIPT ══════════ -->
+  <script>
+    // ─────────────────────────────────────────────
+    //  REPLACE THE NUMBER BELOW WITH YOUR WHATSAPP
+    //  Use international format WITHOUT + or spaces
+    //  Example: Israel 052-1234567 → 9725212345678
+    // ─────────────────────────────────────────────
+    const WHATSAPP_NUMBER = 'YOUR_NUMBER_HERE'; /* <!-- REPLACE WITH YOUR WHATSAPP NUMBER HERE --> */
+
+    // ─── Open generic WhatsApp chat ───
+    function openWhatsApp(e) {
+      e.preventDefault();
+      const msg = encodeURIComponent('שלום! ראיתי את האתר שלכם ואשמח לשמוע עוד 😊');
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    // ─── Quick preset messages ───
+    function quickWhatsApp(text) {
+      const msg = encodeURIComponent(text);
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    // ─── Form → WhatsApp submission ───
+    function submitToWhatsApp() {
+      const name    = document.getElementById('f-name').value.trim();
+      const phone   = document.getElementById('f-phone').value.trim();
+      const service = document.getElementById('f-service').value;
+      const message = document.getElementById('f-message').value.trim();
+
+      // Basic validation
+      if (!name) { alert('אנא הכנס שם מלא'); return; }
+      if (!phone) { alert('אנא הכנס מספר טלפון'); return; }
+      if (!service) { alert('אנא בחר סוג שירות'); return; }
+
+      // Build the formatted message
+      const formatted =
+        `✅ *פנייה חדשה מהאתר — TechLab Pro*\n\n` +
+        `👤 *שם:* ${name}\n` +
+        `📞 *טלפון:* ${phone}\n` +
+        `🔧 *שירות מבוקש:* ${service}\n` +
+        (message ? `💬 *פרטים נוספים:*\n${message}\n` : '') +
+        `\n_נשלח דרך האתר techlab-pro.co.il_`;
+
+      const encodedMsg = encodeURIComponent(formatted);
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMsg}`;
+
+      // Open WhatsApp (works on mobile → app, desktop → web.whatsapp.com)
+      window.open(url, '_blank');
+    }
+
+    // ─── Mobile menu toggle ───
+    function toggleMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const icon = document.getElementById('menu-icon');
+      menu.classList.toggle('open');
+      icon.className = menu.classList.contains('open')
+        ? 'fa-solid fa-xmark text-xl'
+        : 'fa-solid fa-bars text-xl';
+    }
+
+    // ─── Scroll fade-in observer ───
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ─── Smooth navbar shrink on scroll ───
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.navbar');
+      if (window.scrollY > 60) {
+        nav.style.padding = '0';
+      } else {
+        nav.style.padding = '';
+      }
+    });
+
+    // ─── Typewriter effect for hero ───
+    const words = ['מהיר.', 'אמין.', 'מקצועי.', 'נגיש.'];
+    let wi = 0, ci = 0, deleting = false;
+    const target = document.querySelector('.cursor-blink');
+
+    function typeWriter() {
+      if (!target) return;
+      const word = words[wi];
+      if (!deleting) {
+        target.textContent = word.slice(0, ++ci);
+        if (ci === word.length) { deleting = true; setTimeout(typeWriter, 1600); return; }
+      } else {
+        target.textContent = word.slice(0, --ci);
+        if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+      }
+      setTimeout(typeWriter, deleting ? 60 : 100);
+    }
+    setTimeout(typeWriter, 1200);
+  </script>
+
+</body>
+</html>
