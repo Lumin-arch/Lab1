@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>פורטל פקודות — Cheat Sheet</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{htb:{bg:'#0b111e',surface:'#111927',card:'#1a2436',border:'#1f2e45',green:'#9fef00',muted:'#4a6785',text:'#c8d8e8',heading:'#e8f4ff'}},fontFamily:{sans:['Heebo','ui-sans-serif'],mono:['JetBrains Mono','ui-monospace']}}}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}
+html,body{background:#0b111e;color:#c8d8e8;font-family:'Heebo',sans-serif;direction:rtl;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#111927}::-webkit-scrollbar-thumb{background:#1f2e45;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#9fef00}
+
+/* ── Search ── */
+#search-input{background:#111927;border:1px solid #1f2e45;border-radius:.6rem;color:#c8d8e8;font-family:'Heebo',sans-serif;width:100%;outline:none;transition:border-color .2s}
+#search-input:focus{border-color:#9fef00}
+#search-input::placeholder{color:#4a6785}
+
+/* ── Category pills ── */
+.cat-pill{border-radius:999px;padding:.3rem .85rem;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid #1f2e45;background:#111927;color:#4a6785;transition:all .15s}
+.cat-pill.active,.cat-pill:hover{background:rgba(159,239,0,.12);border-color:rgba(159,239,0,.4);color:#9fef00}
+
+/* ── Difficulty badge ── */
+.diff-easy  {background:rgba(159,239,0,.1);border:1px solid rgba(159,239,0,.3);color:#9fef00;border-radius:999px;padding:.1rem .5rem;font-size:.65rem;font-weight:700}
+.diff-medium{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f59e0b;border-radius:999px;padding:.1rem .5rem;font-size:.65rem;font-weight:700}
+.diff-hard  {background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:999px;padding:.1rem .5rem;font-size:.65rem;font-weight:700}
+
+/* ── Code block ── */
+pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;background:#070d18;border:1px solid #1f2e45;border-radius:.5rem;padding:1rem 1.25rem;overflow-x:auto;direction:ltr;text-align:left;position:relative}
+.token-cmd{color:#9fef00}.token-flag{color:#67e8f9}.token-str{color:#f9a8d4}.token-cmt{color:#4a6785;font-style:italic}.token-path{color:#fbbf24}.token-out{color:#94a3b8}.token-var{color:#c084fc}
+
+/* ── Copy button ── */
+.copy-btn{position:absolute;top:.5rem;left:.5rem;background:#1a2436;border:1px solid #253550;color:#4a6785;border-radius:.3rem;padding:.2rem .55rem;font-size:.68rem;font-family:'Heebo',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.25rem}
+.copy-btn:hover{background:#9fef00;color:#0b111e;border-color:#9fef00}
+.copy-btn.copied{background:#4ade80;color:#0b111e;border-color:#4ade80}
+
+/* ── Command card ── */
+.cmd-card{background:#111927;border:1px solid #1f2e45;border-radius:.85rem;overflow:hidden;transition:border-color .2s;margin-bottom:1rem}
+.cmd-card:hover{border-color:rgba(159,239,0,.25)}
+.cmd-card.hidden-card{display:none}
+
+/* ── Deep dive ── */
+.dive-body{display:none;background:#0b111e;border-top:1px solid #1f2e45}
+.dive-body.open{display:block}
+.chevron{transition:transform .2s}.chevron.open{transform:rotate(180deg)}
+
+/* ── Callout ── */
+.callout{border-right:3px solid;border-radius:.5rem;padding:.85rem 1rem;margin:.75rem 0}
+.callout-info{border-color:#9fef00;background:rgba(159,239,0,.05)}
+.callout-tip{border-color:#06b6d4;background:rgba(6,182,212,.05)}
+.callout-warn{border-color:#f59e0b;background:rgba(245,158,11,.05)}
+
+/* ── Category color chips ── */
+.cat-chip{display:inline-block;border-radius:.25rem;padding:.1rem .45rem;font-size:.65rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.chip-linux  {background:rgba(159,239,0,.1);color:#9fef00}
+.chip-cisco  {background:rgba(251,191,36,.1);color:#fbbf24}
+.chip-docker {background:rgba(103,232,249,.1);color:#67e8f9}
+.chip-windows{background:rgba(192,132,252,.1);color:#c084fc}
+.chip-git    {background:rgba(251,113,133,.1);color:#fb7185}
+.chip-network{background:rgba(251,146,60,.1);color:#fb923c}
+
+/* ── No results ── */
+#no-results{display:none}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cmd-card{animation:fadeIn .3s ease both}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP NAV ══ -->
+<header style="background:#111927;border-bottom:1px solid #1f2e45" class="sticky top-0 z-40 flex items-center justify-between px-6 h-14">
+  <div class="flex items-center gap-3">
+    <svg width="26" height="26" viewBox="0 0 32 32" fill="none"><polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#111927" stroke="#9fef00" stroke-width="1.5"/><text x="16" y="21" text-anchor="middle" fill="#9fef00" font-family="Heebo" font-weight="800" font-size="9">HTB</text></svg>
+    <span class="font-bold text-htb-heading text-sm">Academy</span>
+    <span class="text-htb-muted text-xs">›</span>
+    <span class="text-htb-text text-xs">פורטל פקודות</span>
+  </div>
+  <div class="text-xs text-htb-muted">
+    <span id="cmd-count" class="text-htb-green font-bold font-mono">0</span> פקודות
+  </div>
+</header>
+
+<div class="max-w-4xl mx-auto px-5 py-8">
+
+  <!-- ══ SEARCH BAR ══ -->
+  <div class="relative mb-6">
+    <svg class="absolute top-1/2 -translate-y-1/2 right-4 text-htb-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search-input" type="text" placeholder="חפש פקודה, תיאור, דגל..." class="pr-10 pl-4 py-3 text-sm" oninput="applyFilters()"/>
+  </div>
+
+  <!-- ══ CATEGORY FILTER PILLS ══ -->
+  <div class="flex flex-wrap gap-2 mb-8">
+    <!-- INSERT CATEGORY PILLS HERE — duplicate .cat-pill buttons, set data-cat attribute -->
+    <button class="cat-pill active" data-cat="all" onclick="setCat(this)">הכל</button>
+    <button class="cat-pill" data-cat="linux" onclick="setCat(this)">🐧 Linux</button>
+    <button class="cat-pill" data-cat="cisco" onclick="setCat(this)">🔀 Cisco</button>
+    <button class="cat-pill" data-cat="docker" onclick="setCat(this)">🐳 Docker</button>
+    <button class="cat-pill" data-cat="windows" onclick="setCat(this)">🪟 Windows</button>
+    <button class="cat-pill" data-cat="git" onclick="setCat(this)">🔀 Git</button>
+    <button class="cat-pill" data-cat="network" onclick="setCat(this)">🌐 Network</button>
+    <!-- END CATEGORY PILLS -->
+  </div>
+
+  <!-- ══ COMMAND CARDS LIST ══ -->
+  <div id="cmd-list">
+
+    <!-- ══════════════════════════════════════════════════════
+         COMMAND CARD TEMPLATE — duplicate this entire block.
+         Attributes to set on .cmd-card:
+           data-cat="linux|cisco|docker|windows|git|network"
+           data-tags="comma,separated,keywords"
+    ═══════════════════════════════════════════════════════ -->
+    <div class="cmd-card" data-cat="linux" data-tags="find,search,file,files,locate">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-linux">Linux</span>
+          <span class="diff-easy">קל</span>
+          <!-- INSERT COMMAND TITLE -->
+          <span class="font-mono text-sm font-bold text-htb-heading">find</span>
+          <span class="text-htb-muted text-xs">— חיפוש קבצים במערכת הקבצים</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <!-- Description -->
+      <div class="px-4 py-3 text-sm text-htb-text">
+        <!-- INSERT DESCRIPTION -->
+        מאתר קבצים ותיקיות לפי שם, סוג, הרשאות, גודל וזמן שינוי. כלי חיוני לחיפוש SUID ולפי metadata.
+      </div>
+      <!-- Syntax block -->
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-find"><span class="token-cmt"># חיפוש לפי שם</span>
+<span class="token-cmd">find</span> <span class="token-path">/home</span> <span class="token-flag">-name</span> <span class="token-str">"*.conf"</span> <span class="token-flag">-type</span> f
+
+<span class="token-cmt"># קבצי SUID (הסלמת הרשאות)</span>
+<span class="token-cmd">find</span> <span class="token-path">/</span> <span class="token-flag">-perm</span> <span class="token-flag">-4000</span> <span class="token-flag">-type</span> f 2>/dev/null
+
+<span class="token-cmt"># קבצים שנערכו בשעה האחרונה</span>
+<span class="token-cmd">find</span> <span class="token-path">/etc</span> <span class="token-flag">-mmin</span> <span class="token-flag">-60</span></pre>
+        <button class="copy-btn" onclick="copyCode('cmd-find',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <!-- Deep dive -->
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <!-- INSERT CALLOUTS HERE -->
+        <div class="callout callout-info text-sm">
+          <p class="font-bold mb-1" style="color:#9fef00">אופרטורים נפוצים</p>
+          <p class="text-htb-text"><code style="color:#9fef00;font-family:monospace">-name</code> תיאור רגיש לרישיות · <code style="color:#9fef00;font-family:monospace">-iname</code> לא רגיש</p>
+        </div>
+        <div class="callout callout-tip text-sm mt-2">
+          <p class="font-bold mb-1" style="color:#06b6d4">טיפ: שילוב עם exec</p>
+          <pre style="margin:0;font-size:.75rem;background:transparent;border:none;padding:0;direction:ltr;text-align:left"><span class="token-cmd">find</span> <span class="token-path">/tmp</span> <span class="token-flag">-name</span> <span class="token-str">"*.sh"</span> <span class="token-flag">-exec</span> chmod +x {} \;</pre>
+        </div>
+        <!-- END CALLOUTS -->
+      </div>
+    </div>
+    <!-- END CARD: find -->
+
+    <!-- ══ CARD: grep ══ -->
+    <div class="cmd-card" data-cat="linux" data-tags="grep,search,pattern,text,regex">
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-linux">Linux</span>
+          <span class="diff-easy">קל</span>
+          <span class="font-mono text-sm font-bold text-htb-heading">grep</span>
+          <span class="text-htb-muted text-xs">— חיפוש טקסט בקבצים</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="px-4 py-3 text-sm text-htb-text">חיפוש דפוסי טקסט ו-regex בקבצים ובפלט פקודות. בלתי-נפרד מעבודת shell.</div>
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-grep"><span class="token-cmt"># חפש מחרוזת בקובץ (רגיש לרישיות)</span>
+<span class="token-cmd">grep</span> <span class="token-str">"error"</span> <span class="token-path">/var/log/syslog</span>
+
+<span class="token-cmt"># רקורסיבי + לא רגיש לרישיות + מספרי שורות</span>
+<span class="token-cmd">grep</span> <span class="token-flag">-rin</span> <span class="token-str">"password"</span> <span class="token-path">/etc/</span>
+
+<span class="token-cmt"># regex: הדפס רק את ה-match עצמו</span>
+<span class="token-cmd">grep</span> <span class="token-flag">-oP</span> <span class="token-str">'\b\d{1,3}(\.\d{1,3}){3}\b'</span> file.txt</pre>
+        <button class="copy-btn" onclick="copyCode('cmd-grep',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <div class="callout callout-tip text-sm">
+          <p class="font-bold mb-1" style="color:#06b6d4">דגלים שכדאי לדעת</p>
+          <p class="text-htb-text"><code style="font-family:monospace;color:#67e8f9">-v</code> היפוך (שורות שאינן מכילות) · <code style="font-family:monospace;color:#67e8f9">-c</code> ספירה · <code style="font-family:monospace;color:#67e8f9">-l</code> שמות קבצים בלבד</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CARD: Docker ══ -->
+    <div class="cmd-card" data-cat="docker" data-tags="docker,container,image,run,build">
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-docker">Docker</span>
+          <span class="diff-medium">בינוני</span>
+          <span class="font-mono text-sm font-bold text-htb-heading">docker run</span>
+          <span class="text-htb-muted text-xs">— הפעלת קונטיינרים</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="px-4 py-3 text-sm text-htb-text">הפעל קונטיינרים עם אפשרויות מפורטות: רשת, volumes, envs וחשיפת פורטים.</div>
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-docker"><span class="token-cmt"># הפעל קונטיינר עם פורט וenv</span>
+<span class="token-cmd">docker</span> run <span class="token-flag">-d</span> <span class="token-flag">-p</span> 8080:80 <span class="token-flag">-e</span> <span class="token-var">ENV=prod</span> <span class="token-flag">--name</span> web nginx
+
+<span class="token-cmt"># עם volume מקומי</span>
+<span class="token-cmd">docker</span> run <span class="token-flag">-v</span> <span class="token-path">/host/data:/app/data</span> myapp
+
+<span class="token-cmt"># הרץ ומחק אחרי יציאה</span>
+<span class="token-cmd">docker</span> run <span class="token-flag">--rm</span> <span class="token-flag">-it</span> ubuntu bash</pre>
+        <button class="copy-btn" onclick="copyCode('cmd-docker',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <div class="callout callout-warn text-sm">
+          <p class="font-bold mb-1" style="color:#f59e0b">אבטחה</p>
+          <p class="text-htb-text">הימנע מ-<code style="font-family:monospace;color:#f59e0b">--privileged</code> בסביבת ייצור — מעניק גישה מלאה לhardware.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CARD: Cisco Show ══ -->
+    <div class="cmd-card" data-cat="cisco" data-tags="cisco,show,interface,routing,vlan">
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-cisco">Cisco</span>
+          <span class="diff-medium">בינוני</span>
+          <span class="font-mono text-sm font-bold text-htb-heading">show ip route</span>
+          <span class="text-htb-muted text-xs">— טבלת ניתוב</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="px-4 py-3 text-sm text-htb-text">הצג טבלת ניתוב, פרוטוקולים פעילים ומסלולים ספציפיים בנתבי Cisco IOS.</div>
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-cisco"><span class="token-cmt"># טבלת ניתוב כוללת</span>
+Router# <span class="token-cmd">show</span> ip route
+
+<span class="token-cmt"># רק מסלולי OSPF</span>
+Router# <span class="token-cmd">show</span> ip route ospf
+
+<span class="token-cmt"># פרטי ממשק</span>
+Router# <span class="token-cmd">show</span> interfaces GigabitEthernet0/0
+
+<span class="token-cmt"># סיכום VLAN</span>
+Switch# <span class="token-cmd">show</span> vlan brief</pre>
+        <button class="copy-btn" onclick="copyCode('cmd-cisco',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <div class="callout callout-info text-sm">
+          <p class="font-bold mb-1" style="color:#9fef00">קיצורי מצבים</p>
+          <p class="text-htb-text"><code style="font-family:monospace;color:#9fef00">C</code> Connected · <code style="font-family:monospace;color:#9fef00">S</code> Static · <code style="font-family:monospace;color:#9fef00">O</code> OSPF · <code style="font-family:monospace;color:#9fef00">B</code> BGP</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CARD: Git ══ -->
+    <div class="cmd-card" data-cat="git" data-tags="git,commit,branch,merge,rebase">
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-git">Git</span>
+          <span class="diff-easy">קל</span>
+          <span class="font-mono text-sm font-bold text-htb-heading">git log</span>
+          <span class="text-htb-muted text-xs">— היסטוריית commits</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="px-4 py-3 text-sm text-htb-text">הצגה וסינון של היסטוריית commits עם פורמטים שונים.</div>
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-git"><span class="token-cmt"># גרף ויזואלי צבעוני</span>
+<span class="token-cmd">git</span> log <span class="token-flag">--oneline</span> <span class="token-flag">--graph</span> <span class="token-flag">--all</span>
+
+<span class="token-cmt"># commits של משתמש בשבועיים האחרונים</span>
+<span class="token-cmd">git</span> log <span class="token-flag">--author</span>=<span class="token-str">"Avraham"</span> <span class="token-flag">--since</span>=<span class="token-str">"2 weeks ago"</span>
+
+<span class="token-cmt"># הצג שינויים בכל commit</span>
+<span class="token-cmd">git</span> log <span class="token-flag">-p</span> <span class="token-flag">--follow</span> <span class="token-path">src/app.js</span></pre>
+        <button class="copy-btn" onclick="copyCode('cmd-git',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <div class="callout callout-tip text-sm">
+          <p class="font-bold mb-1" style="color:#06b6d4">פורמט מותאם אישית</p>
+          <pre style="margin:0;font-size:.73rem;background:transparent;border:none;padding:0;direction:ltr;text-align:left"><span class="token-cmd">git</span> log <span class="token-flag">--pretty=format:</span><span class="token-str">"%h %ad | %s"</span> <span class="token-flag">--date=short</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CARD: Network nmap ══ -->
+    <div class="cmd-card" data-cat="network" data-tags="nmap,scan,port,network,discovery">
+      <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #1f2e45">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="cat-chip chip-network">Network</span>
+          <span class="diff-hard">מתקדם</span>
+          <span class="font-mono text-sm font-bold text-htb-heading">nmap</span>
+          <span class="text-htb-muted text-xs">— סריקת רשת ופורטים</span>
+        </div>
+        <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleDive(this)">
+          <span>הרחב</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="px-4 py-3 text-sm text-htb-text">סריקת פורטים וגילוי מכשירים ברשת. כלי יסודי לבדיקות penetration.</div>
+      <div class="px-4 pb-3 relative">
+        <pre id="cmd-nmap"><span class="token-cmt"># סריקה בסיסית עם גילוי שירותים</span>
+<span class="token-cmd">nmap</span> <span class="token-flag">-sV</span> <span class="token-flag">-sC</span> <span class="token-var">10.0.1.0/24</span>
+
+<span class="token-cmt"># כל הפורטים + עצמות הפלט</span>
+<span class="token-cmd">nmap</span> <span class="token-flag">-p-</span> <span class="token-flag">-T4</span> <span class="token-flag">-A</span> <span class="token-flag">-oN</span> <span class="token-path">scan.txt</span> <span class="token-var">TARGET_IP</span>
+
+<span class="token-cmt"># UDP scan (דורש sudo)</span>
+<span class="token-cmd">sudo</span> nmap <span class="token-flag">-sU</span> <span class="token-flag">--top-ports</span> 100 <span class="token-var">TARGET_IP</span></pre>
+        <button class="copy-btn" onclick="copyCode('cmd-nmap',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          העתק
+        </button>
+      </div>
+      <div class="dive-body px-4 py-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">📖 צלילה עמוקה</p>
+        <div class="callout callout-warn text-sm">
+          <p class="font-bold mb-1" style="color:#f59e0b">⚠ שימוש אחראי</p>
+          <p class="text-htb-text">הרץ nmap רק על רשתות שיש לך הרשאה לסרוק. סריקה ללא הרשאה היא עבירה חוקית.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PLACEHOLDER — ADD NEW COMMAND CARD HERE ══ -->
+    <!-- <div class="cmd-card" data-cat="CATEGORY" data-tags="tag1,tag2"> ... </div> -->
+
+  </div><!-- /cmd-list -->
+
+  <!-- No results -->
+  <div id="no-results" class="text-center py-16">
+    <svg class="mx-auto mb-3 text-htb-muted" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p class="text-htb-muted">לא נמצאו תוצאות עבור "<span id="no-results-term" class="text-htb-green"></span>"</p>
+    <button class="mt-3 text-xs text-htb-green underline" onclick="clearSearch()">נקה חיפוש</button>
+  </div>
+
+</div><!-- /max-w -->
+
+<script>
+let activeCat='all';
+
+function setCat(btn){
+  activeCat=btn.dataset.cat;
+  document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById('search-input').value.toLowerCase().trim();
+  const cards=document.querySelectorAll('.cmd-card');
+  let visible=0;
+  cards.forEach(c=>{
+    const catMatch=activeCat==='all'||c.dataset.cat===activeCat;
+    const tags=(c.dataset.tags||'').toLowerCase();
+    const text=c.innerText.toLowerCase();
+    const searchMatch=!q||tags.includes(q)||text.includes(q);
+    if(catMatch&&searchMatch){c.classList.remove('hidden-card');visible++}
+    else{c.classList.add('hidden-card')}
+  });
+  const nr=document.getElementById('no-results');
+  nr.style.display=visible===0?'block':'none';
+  document.getElementById('no-results-term').textContent=q;
+  document.getElementById('cmd-count').textContent=visible;
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  applyFilters();
+}
+
+function toggleDive(btn){
+  const card=btn.closest('.cmd-card');
+  const body=card.querySelector('.dive-body');
+  const chev=btn.querySelector('.chevron');
+  const span=btn.querySelector('span');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+  span.textContent=body.classList.contains('open')?'סגור':'הרחב';
+}
+
+function copyCode(id,btn){
+  const text=document.getElementById(id).innerText;
+  const done=()=>{
+    btn.classList.add('copied');
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> הועתק!';
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> העתק'},2000);
+  };
+  navigator.clipboard?navigator.clipboard.writeText(text).then(done):done();
+}
+
+// Init count
+applyFilters();
+</script>
+</body>
+</html>
