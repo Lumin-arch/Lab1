@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>מלאי חומרה — לוח ניהול</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{htb:{bg:'#0b111e',surface:'#111927',card:'#1a2436',border:'#1f2e45',green:'#9fef00',muted:'#4a6785',text:'#c8d8e8',heading:'#e8f4ff'}},fontFamily:{sans:['Heebo','ui-sans-serif'],mono:['JetBrains Mono','ui-monospace']}}}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}
+html,body{background:#0b111e;color:#c8d8e8;font-family:'Heebo',sans-serif;direction:rtl;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:#111927}::-webkit-scrollbar-thumb{background:#1f2e45;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#9fef00}
+
+/* ── Status badges ── */
+.badge{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.15rem .65rem;font-size:.68rem;font-weight:700;letter-spacing:.04em}
+.badge-online {background:rgba(159,239,0,.12);border:1px solid rgba(159,239,0,.35);color:#9fef00}
+.badge-maintenance{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f59e0b}
+.badge-offline{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444}
+
+/* ── Meter bars ── */
+.meter-track{width:100%;height:6px;background:#1f2e45;border-radius:3px;overflow:hidden}
+.meter-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.meter-green{background:linear-gradient(90deg,#4ade80,#9fef00)}
+.meter-amber{background:linear-gradient(90deg,#f59e0b,#fb923c)}
+.meter-red  {background:linear-gradient(90deg,#ef4444,#f87171)}
+
+/* ── Pulse dot ── */
+.pulse-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pulse-green{background:#9fef00;box-shadow:0 0 6px #9fef00,0 0 12px rgba(159,239,0,.4);animation:pulse 2s infinite}
+.pulse-amber{background:#f59e0b;box-shadow:0 0 6px #f59e0b}
+.pulse-red  {background:#ef4444;box-shadow:0 0 6px #ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── Device card ── */
+.device-card{background:#111927;border:1px solid #1f2e45;border-radius:.85rem;overflow:hidden;transition:border-color .2s,transform .2s}
+.device-card:hover{border-color:rgba(159,239,0,.3);transform:translateY(-2px)}
+
+/* ── Log lines ── */
+.log-line{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.25rem 0;border-bottom:1px solid #1a2436;color:#4a6785}
+.log-line .ts{color:#4a6785;margin-left:.75rem}
+.log-line .info{color:#67e8f9}
+.log-line .warn{color:#f59e0b}
+.log-line .err {color:#ef4444}
+.log-line .ok  {color:#9fef00}
+
+/* ── Logs collapsed by default ── */
+.logs-body{display:none}
+.logs-body.open{display:block}
+
+/* ── Collapsible chevron ── */
+.chevron{transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+
+/* ── Spec pill ── */
+.spec-pill{display:inline-block;background:#1a2436;border:1px solid #1f2e45;color:#4a6785;border-radius:.3rem;padding:.12rem .5rem;font-size:.7rem;font-family:'JetBrains Mono',monospace}
+
+/* ── Rack unit ── */
+.rack-unit{background:#0f1b2d;border:1px solid #1f2e45;border-radius:.4rem;padding:.4rem .75rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#4a6785;display:flex;align-items:center;gap:.5rem;margin-bottom:3px}
+.rack-unit .ru-label{color:#9fef00;width:2.5rem;text-align:center;flex-shrink:0}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card-anim{animation:fadeIn .4s ease both}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ══ TOP NAV ══ -->
+<header style="background:#111927;border-bottom:1px solid #1f2e45" class="sticky top-0 z-40 flex items-center justify-between px-6 h-14">
+  <div class="flex items-center gap-3">
+    <!-- Logo -->
+    <svg width="26" height="26" viewBox="0 0 32 32" fill="none"><polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#111927" stroke="#9fef00" stroke-width="1.5"/><text x="16" y="21" text-anchor="middle" fill="#9fef00" font-family="Heebo" font-weight="800" font-size="9">HTB</text></svg>
+    <span class="font-bold text-htb-heading text-sm">Academy</span>
+    <span class="text-htb-muted text-xs">›</span>
+    <span class="text-htb-text text-xs">מלאי חומרה</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <!-- Filter status buttons -->
+    <button onclick="filterCards('all')" id="f-all" class="filter-btn badge badge-online">הכל</button>
+    <button onclick="filterCards('online')" id="f-online" class="filter-btn badge" style="background:rgba(159,239,0,.06);border:1px solid #1f2e45;color:#4a6785">Online</button>
+    <button onclick="filterCards('maintenance')" id="f-maintenance" class="filter-btn badge" style="background:rgba(245,158,11,.06);border:1px solid #1f2e45;color:#4a6785">Maintenance</button>
+    <button onclick="filterCards('offline')" id="f-offline" class="filter-btn badge" style="background:rgba(239,68,68,.06);border:1px solid #1f2e45;color:#4a6785">Offline</button>
+    <!-- Summary counts -->
+    <div class="hidden sm:flex items-center gap-4 mr-4 text-xs text-htb-muted border-r border-htb-border pl-4">
+      <span><span id="count-online" class="text-htb-green font-bold">0</span> Online</span>
+      <span><span id="count-maintenance" class="text-amber-400 font-bold">0</span> Maintenance</span>
+      <span><span id="count-offline" class="text-red-400 font-bold">0</span> Offline</span>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- ══ LEFT RACK PANEL ══ -->
+  <aside style="background:#0f1b2d;border-left:1px solid #1f2e45;width:200px;flex-shrink:0" class="hidden lg:block sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto p-4">
+    <p class="text-xs font-bold uppercase tracking-widest text-htb-muted mb-3">Rack View</p>
+    <!-- INSERT RACK UNITS HERE (duplicate .rack-unit divs) -->
+    <div class="rack-unit"><span class="ru-label">U1</span> <span class="text-htb-text">SW-CORE-01</span></div>
+    <div class="rack-unit"><span class="ru-label">U2</span> <span class="text-htb-text">SW-CORE-02</span></div>
+    <div class="rack-unit"><span class="ru-label">U3</span> <span style="color:#f59e0b">FW-01</span></div>
+    <div class="rack-unit"><span class="ru-label">U4</span> <span class="text-htb-text">SRV-WEB-01</span></div>
+    <div class="rack-unit"><span class="ru-label">U5</span> <span class="text-htb-text">SRV-DB-01</span></div>
+    <div class="rack-unit"><span class="ru-label">U6</span> <span style="color:#ef4444">SRV-BACKUP</span></div>
+    <div class="rack-unit"><span class="ru-label">U7</span> <span class="text-htb-muted">— ריק —</span></div>
+    <div class="rack-unit"><span class="ru-label">U8</span> <span class="text-htb-muted">— ריק —</span></div>
+    <div class="mt-4 p-3 rounded-lg" style="background:rgba(159,239,0,.05);border:1px solid rgba(159,239,0,.15)">
+      <p class="text-xs text-htb-muted mb-1">קיבולת מדף</p>
+      <div class="meter-track"><div class="meter-fill meter-amber" style="width:62%"></div></div>
+      <p class="text-xs text-htb-green mt-1 font-mono">5/8 יחידות</p>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN GRID ══ -->
+  <main class="flex-1 p-6">
+    <div class="mb-6">
+      <h1 class="text-2xl font-extrabold text-htb-heading">לוח ניהול חומרה</h1>
+      <p class="text-htb-muted text-sm mt-1">ניטור מצב ומשאבים בזמן אמת · עדכון אחרון: <span class="text-htb-green font-mono"><!-- INSERT TIMESTAMP --></span></p>
+    </div>
+
+    <!-- Cards grid -->
+    <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+      <!-- ══════════════════════════════════════════
+           DEVICE CARD TEMPLATE — duplicate this block
+           Set data-status to: online | maintenance | offline
+      ════════════════════════════════════════════ -->
+      <div class="device-card card-anim" data-status="online" style="animation-delay:.05s">
+        <!-- Card header -->
+        <div class="flex items-center justify-between px-4 pt-4 pb-3" style="border-bottom:1px solid #1f2e45">
+          <div class="flex items-center gap-2">
+            <!-- Device icon -->
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(159,239,0,.1);border:1px solid rgba(159,239,0,.2)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9fef00" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-htb-heading leading-tight"><!-- DEVICE NAME --> SRV-WEB-01</p>
+              <p class="text-xs text-htb-muted"><!-- DEVICE ROLE --> Web Server · Dell PowerEdge R740</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="pulse-dot pulse-green"></div>
+            <span class="badge badge-online">Online</span>
+          </div>
+        </div>
+
+        <!-- Specs row -->
+        <div class="flex flex-wrap gap-1.5 px-4 py-2.5" style="border-bottom:1px solid #1f2e45">
+          <span class="spec-pill">CPU: <!-- SPEC -->Xeon E-2336</span>
+          <span class="spec-pill">RAM: <!-- SPEC -->64GB ECC</span>
+          <span class="spec-pill">SSD: <!-- SPEC -->2×960GB</span>
+          <span class="spec-pill">IP: <!-- SPEC -->10.0.1.10</span>
+        </div>
+
+        <!-- Metrics -->
+        <div class="px-4 py-3 space-y-2.5">
+          <!-- CPU meter -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-htb-muted">עומס CPU</span>
+              <span class="font-mono" style="color:#9fef00"><!-- CPU % -->38%</span>
+            </div>
+            <div class="meter-track"><div class="meter-fill meter-green" style="width:38%"></div></div>
+          </div>
+          <!-- RAM meter -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-htb-muted">שימוש RAM</span>
+              <span class="font-mono" style="color:#f59e0b"><!-- RAM % -->71%</span>
+            </div>
+            <div class="meter-track"><div class="meter-fill meter-amber" style="width:71%"></div></div>
+          </div>
+          <!-- Disk meter -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-htb-muted">אחסון</span>
+              <span class="font-mono text-htb-text"><!-- DISK % -->52%</span>
+            </div>
+            <div class="meter-track"><div class="meter-fill meter-green" style="width:52%"></div></div>
+          </div>
+        </div>
+
+        <!-- Uptime + toggle logs -->
+        <div class="flex items-center justify-between px-4 py-2" style="border-top:1px solid #1f2e45">
+          <span class="text-xs text-htb-muted">Uptime: <span class="font-mono text-htb-green"><!-- UPTIME -->42d 7h 12m</span></span>
+          <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleLogs(this)">
+            <span>לוגים</span>
+            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <!-- Logs sub-section -->
+        <div class="logs-body px-4 pb-3" style="background:#0b111e">
+          <p class="text-xs font-bold uppercase tracking-widest text-htb-muted pt-2 pb-1">לוג אחרון</p>
+          <!-- INSERT LOG LINES HERE — duplicate .log-line divs -->
+          <div class="log-line"><span class="ts">[08:42:01]</span><span class="ok">INFO</span> nginx: reload config OK</div>
+          <div class="log-line"><span class="ts">[08:38:14]</span><span class="info">INFO</span> cron: backup started</div>
+          <div class="log-line"><span class="ts">[07:55:02]</span><span class="warn">WARN</span> RAM usage exceeded 70%</div>
+          <div class="log-line"><span class="ts">[07:30:00]</span><span class="ok">OK</span> health-check: PASSED</div>
+          <!-- END LOG LINES -->
+        </div>
+      </div>
+      <!-- END CARD — SRV-WEB-01 -->
+
+      <!-- ══ CARD: SRV-DB-01 ══ -->
+      <div class="device-card card-anim" data-status="online" style="animation-delay:.1s">
+        <div class="flex items-center justify-between px-4 pt-4 pb-3" style="border-bottom:1px solid #1f2e45">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(103,232,249,.08);border:1px solid rgba(103,232,249,.2)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#67e8f9" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-htb-heading leading-tight">SRV-DB-01</p>
+              <p class="text-xs text-htb-muted">Database Server · HP ProLiant DL380</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="pulse-dot pulse-green"></div>
+            <span class="badge badge-online">Online</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 px-4 py-2.5" style="border-bottom:1px solid #1f2e45">
+          <span class="spec-pill">CPU: Xeon Gold 5218</span>
+          <span class="spec-pill">RAM: 256GB</span>
+          <span class="spec-pill">SAS: 4×1.2TB</span>
+          <span class="spec-pill">IP: 10.0.1.20</span>
+        </div>
+        <div class="px-4 py-3 space-y-2.5">
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">עומס CPU</span><span class="font-mono" style="color:#ef4444">89%</span></div><div class="meter-track"><div class="meter-fill meter-red" style="width:89%"></div></div></div>
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">שימוש RAM</span><span class="font-mono" style="color:#f59e0b">65%</span></div><div class="meter-track"><div class="meter-fill meter-amber" style="width:65%"></div></div></div>
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">אחסון</span><span class="font-mono text-htb-text">81%</span></div><div class="meter-track"><div class="meter-fill meter-amber" style="width:81%"></div></div></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-2" style="border-top:1px solid #1f2e45">
+          <span class="text-xs text-htb-muted">Uptime: <span class="font-mono text-htb-green">127d 3h 44m</span></span>
+          <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleLogs(this)">
+            <span>לוגים</span>
+            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="logs-body px-4 pb-3" style="background:#0b111e">
+          <p class="text-xs font-bold uppercase tracking-widest text-htb-muted pt-2 pb-1">לוג אחרון</p>
+          <div class="log-line"><span class="ts">[08:41:00]</span><span class="warn">WARN</span> CPU spike detected: 89%</div>
+          <div class="log-line"><span class="ts">[08:30:12]</span><span class="info">INFO</span> PostgreSQL: autovacuum running</div>
+          <div class="log-line"><span class="ts">[08:15:00]</span><span class="ok">OK</span> replication lag: 0ms</div>
+        </div>
+      </div>
+
+      <!-- ══ CARD: FW-01 — MAINTENANCE ══ -->
+      <div class="device-card card-anim" data-status="maintenance" style="animation-delay:.15s">
+        <div class="flex items-center justify-between px-4 pt-4 pb-3" style="border-bottom:1px solid #1f2e45">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-htb-heading leading-tight">FW-01</p>
+              <p class="text-xs text-htb-muted">Firewall · Fortinet FortiGate 600E</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="pulse-dot pulse-amber"></div>
+            <span class="badge badge-maintenance">Maintenance</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 px-4 py-2.5" style="border-bottom:1px solid #1f2e45">
+          <span class="spec-pill">CPU: NP6xlite</span>
+          <span class="spec-pill">RAM: 16GB</span>
+          <span class="spec-pill">FW Policy: 247</span>
+          <span class="spec-pill">IP: 10.0.0.1</span>
+        </div>
+        <div class="px-4 py-3">
+          <div class="rounded-lg p-3 text-xs" style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2)">
+            <p class="font-bold mb-1" style="color:#f59e0b">🔧 עבודות תחזוקה פעילות</p>
+            <p class="text-htb-text">עדכון Firmware 7.4.4 — משך משוער: 45 דקות</p>
+            <p class="text-htb-muted mt-1 font-mono">ע"י: <!-- TECHNICIAN -->admin@corp.local</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-2" style="border-top:1px solid #1f2e45">
+          <span class="text-xs text-htb-muted">Last seen: <span class="font-mono text-amber-400">08:05:33</span></span>
+          <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleLogs(this)">
+            <span>לוגים</span>
+            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="logs-body px-4 pb-3" style="background:#0b111e">
+          <p class="text-xs font-bold uppercase tracking-widest text-htb-muted pt-2 pb-1">לוג אחרון</p>
+          <div class="log-line"><span class="ts">[08:05:33]</span><span class="warn">WARN</span> maintenance mode activated</div>
+          <div class="log-line"><span class="ts">[08:04:11]</span><span class="info">INFO</span> config backup saved</div>
+          <div class="log-line"><span class="ts">[08:00:00]</span><span class="ok">OK</span> uplink traffic: 2.4 Gbps</div>
+        </div>
+      </div>
+
+      <!-- ══ CARD: SRV-BACKUP — OFFLINE ══ -->
+      <div class="device-card card-anim" data-status="offline" style="animation-delay:.2s">
+        <div class="flex items-center justify-between px-4 pt-4 pb-3" style="border-bottom:1px solid #1f2e45">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-htb-heading leading-tight">SRV-BACKUP-01</p>
+              <p class="text-xs text-htb-muted">Backup NAS · Synology RS3621xs+</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="pulse-dot pulse-red"></div>
+            <span class="badge badge-offline">Offline</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 px-4 py-2.5" style="border-bottom:1px solid #1f2e45">
+          <span class="spec-pill">CPU: Ryzen V1780B</span>
+          <span class="spec-pill">RAM: 32GB</span>
+          <span class="spec-pill">HDD: 12×16TB</span>
+          <span class="spec-pill">IP: 10.0.1.50</span>
+        </div>
+        <div class="px-4 py-3">
+          <div class="rounded-lg p-3 text-xs" style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2)">
+            <p class="font-bold mb-1" style="color:#ef4444">⚠ מכשיר לא מגיב</p>
+            <p class="text-htb-text">אובדן תקשורת מאז: <span class="font-mono text-red-400">2024-01-14 03:21:07</span></p>
+            <p class="text-htb-muted mt-1">בדוק PSU וחיבור רשת פיזי</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-2" style="border-top:1px solid #1f2e45">
+          <span class="text-xs text-htb-muted">Last seen: <span class="font-mono text-red-400">03:21:07</span></span>
+          <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleLogs(this)">
+            <span>לוגים</span>
+            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="logs-body px-4 pb-3" style="background:#0b111e">
+          <p class="text-xs font-bold uppercase tracking-widest text-htb-muted pt-2 pb-1">לוג אחרון</p>
+          <div class="log-line"><span class="ts">[03:21:07]</span><span class="err">ERR</span> ICMP timeout — host unreachable</div>
+          <div class="log-line"><span class="ts">[03:20:58]</span><span class="err">ERR</span> SNMP trap: link down</div>
+          <div class="log-line"><span class="ts">[03:18:00]</span><span class="ok">OK</span> backup job: completed</div>
+        </div>
+      </div>
+
+      <!-- ══ CARD: SW-CORE-01 ══ -->
+      <div class="device-card card-anim" data-status="online" style="animation-delay:.25s">
+        <div class="flex items-center justify-between px-4 pt-4 pb-3" style="border-bottom:1px solid #1f2e45">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><rect x="2" y="9" width="20" height="6" rx="2"/><circle cx="7" cy="12" r="1" fill="#c084fc"/><circle cx="17" cy="12" r="1" fill="#c084fc"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-htb-heading leading-tight">SW-CORE-01</p>
+              <p class="text-xs text-htb-muted">Core Switch · Cisco Catalyst 9500</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="pulse-dot pulse-green"></div>
+            <span class="badge badge-online">Online</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 px-4 py-2.5" style="border-bottom:1px solid #1f2e45">
+          <span class="spec-pill">Ports: 48×10G</span>
+          <span class="spec-pill">Uplink: 4×100G</span>
+          <span class="spec-pill">VLANs: 32</span>
+          <span class="spec-pill">IP: 10.0.0.2</span>
+        </div>
+        <div class="px-4 py-3 space-y-2.5">
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">ניצולת CPU</span><span class="font-mono" style="color:#9fef00">12%</span></div><div class="meter-track"><div class="meter-fill meter-green" style="width:12%"></div></div></div>
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">טעינת פורטים</span><span class="font-mono" style="color:#9fef00">41/48</span></div><div class="meter-track"><div class="meter-fill meter-green" style="width:85%"></div></div></div>
+          <div><div class="flex justify-between text-xs mb-1"><span class="text-htb-muted">Traffic (Gbps)</span><span class="font-mono text-htb-text">8.3</span></div><div class="meter-track"><div class="meter-fill meter-green" style="width:41%"></div></div></div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-2" style="border-top:1px solid #1f2e45">
+          <span class="text-xs text-htb-muted">Uptime: <span class="font-mono text-htb-green">201d 14h 02m</span></span>
+          <button class="flex items-center gap-1 text-xs text-htb-muted hover:text-htb-green transition-colors" onclick="toggleLogs(this)">
+            <span>לוגים</span>
+            <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="logs-body px-4 pb-3" style="background:#0b111e">
+          <p class="text-xs font-bold uppercase tracking-widest text-htb-muted pt-2 pb-1">לוג אחרון</p>
+          <div class="log-line"><span class="ts">[08:41:55]</span><span class="ok">OK</span> STP: topology stable</div>
+          <div class="log-line"><span class="ts">[08:30:00]</span><span class="info">INFO</span> SNMP poll: OK</div>
+        </div>
+      </div>
+
+      <!-- ══ ADD NEW CARD PLACEHOLDER ══ -->
+      <div class="card-anim flex flex-col items-center justify-center rounded-xl border-2 border-dashed min-h-48 cursor-pointer hover:border-htb-green hover:bg-htb-green/5 transition-all group" style="border-color:#1f2e45;animation-delay:.3s" onclick="alert('הוסף כרטיס חדש')">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a6785" stroke-width="1.5" class="group-hover:stroke-htb-green transition-colors mb-2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <p class="text-xs text-htb-muted group-hover:text-htb-green transition-colors font-semibold">הוסף מכשיר</p>
+        <!-- INSERT NEW DEVICE CARD HERE -->
+      </div>
+
+    </div><!-- /cards-grid -->
+  </main>
+</div>
+
+<script>
+// ── Toggle logs ──
+function toggleLogs(btn){
+  const card=btn.closest('.device-card');
+  const body=card.querySelector('.logs-body');
+  const chev=btn.querySelector('.chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ── Filter cards ──
+function filterCards(status){
+  const cards=document.querySelectorAll('#cards-grid .device-card');
+  cards.forEach(c=>{
+    if(status==='all'||c.dataset.status===status){c.style.display=''}
+    else{c.style.display='none'}
+  });
+  // Update button styles
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('badge-online'));
+  document.getElementById('f-'+status).classList.add('badge-online');
+}
+
+// ── Count statuses ──
+function updateCounts(){
+  const cards=document.querySelectorAll('#cards-grid .device-card');
+  const counts={online:0,maintenance:0,offline:0};
+  cards.forEach(c=>{if(counts[c.dataset.status]!==undefined)counts[c.dataset.status]++});
+  document.getElementById('count-online').textContent=counts.online;
+  document.getElementById('count-maintenance').textContent=counts.maintenance;
+  document.getElementById('count-offline').textContent=counts.offline;
+}
+updateCounts();
+</script>
+</body>
+</html>
