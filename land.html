@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexCore Systems | IT, תשתיות והנדסה מותאמת אישית</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!--
+    Google Fonts:
+    - Syne         → display headings (Latin / brand name)
+    - Heebo        → Hebrew body text (excellent RTL support, clean & modern)
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    // ─── Tailwind Config ──────────────────────────────────────────────────────
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-base':     '#080e1a',
+            'bg-surface':  '#0d1526',
+            'bg-card':     '#111e35',
+            'bg-border':   '#1a2d4a',
+            'accent':      '#0ea5e9',
+            'accent-dim':  '#0284c7',
+            'accent-glow': '#38bdf8',
+            'text-primary':'#e2eaf6',
+            'text-muted':  '#7b92b4',
+            'text-dim':    '#3d5272',
+          },
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body:    ['Heebo', 'sans-serif'],
+          },
+          boxShadow: {
+            'glow-sm': '0 0 12px rgba(14,165,233,0.25)',
+            'glow-md': '0 0 28px rgba(14,165,233,0.35)',
+            'glow-lg': '0 0 50px rgba(14,165,233,0.25)',
+            'card':    '0 4px 32px rgba(0,0,0,0.45)',
+          },
+          backgroundImage: {
+            'grid-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a2d4a' fill-opacity='0.35'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ─── Base ─────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      font-family: 'Heebo', sans-serif;
+      background: #080e1a;
+      color: #e2eaf6;
+      /* RTL direction is set on <html dir="rtl"> */
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #080e1a; }
+    ::-webkit-scrollbar-thumb { background: #1a2d4a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0ea5e9; }
+
+    /* ─── Noise grain overlay ───────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.35;
+    }
+
+    /* ─── Typography ────────────────────────────────────────────────────────── */
+    .font-display { font-family: 'Syne', sans-serif; }
+    /* Hebrew body text uses Heebo — set globally via html rule above */
+
+    /* ─── Navbar ────────────────────────────────────────────────────────────── */
+    #navbar {
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(8,14,26,0.92) !important;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 #1a2d4a;
+    }
+    .nav-link {
+      position: relative; color: #7b92b4;
+      transition: color 0.2s;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    /* RTL: underline slides from right */
+    .nav-link::after {
+      content: ''; position: absolute; bottom: -4px; right: 0;
+      width: 0; height: 1px; background: #0ea5e9;
+      transition: width 0.25s ease;
+    }
+    .nav-link:hover { color: #e2eaf6; }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ─── Hero ──────────────────────────────────────────────────────────────── */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(2,132,199,0.06) 0%, transparent 60%),
+        #080e1a;
+    }
+
+    /* Animated scan line */
+    .scan-line {
+      position: absolute; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(14,165,233,0.6), transparent);
+      animation: scan 6s linear infinite;
+      top: 0;
+    }
+    @keyframes scan {
+      0%   { top: 0%;   opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Badge pill */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(14,165,233,0.3);
+      background: rgba(14,165,233,0.08);
+      color: #38bdf8;
+      font-size: 0.78rem; font-weight: 700;
+      padding: 6px 14px; border-radius: 100px;
+    }
+
+    /* ─── CTA Button ────────────────────────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #0ea5e9;
+      color: #fff; font-weight: 700;
+      padding: 14px 28px; border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+      pointer-events: none;
+    }
+    .btn-primary:hover {
+      background: #0284c7;
+      box-shadow: 0 0 28px rgba(14,165,233,0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 10px;
+      border: 1px solid #1a2d4a; color: #7b92b4;
+      padding: 14px 28px; border-radius: 8px;
+      font-weight: 500;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: #0ea5e9; color: #e2eaf6;
+      background: rgba(14,165,233,0.06);
+    }
+
+    /* ─── Section label ─────────────────────────────────────────────────────── */
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #0ea5e9;
+      margin-bottom: 12px;
+    }
+    /* RTL: decorative line appears on the right side of the label */
+    .section-label::before {
+      content: ''; display: block; width: 20px; height: 1px;
+      background: #0ea5e9;
+    }
+
+    /* ─── Service Cards ─────────────────────────────────────────────────────── */
+    .service-card {
+      background: #111e35;
+      border: 1px solid #1a2d4a;
+      border-radius: 12px;
+      padding: 32px 28px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      position: relative; overflow: hidden;
+    }
+    /* RTL: glow originates from top-right */
+    .service-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at top right, rgba(14,165,233,0.06) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .service-card:hover { border-color: rgba(14,165,233,0.45); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+    .service-card:hover::before { opacity: 1; }
+
+    .service-icon-wrap {
+      width: 52px; height: 52px; border-radius: 10px;
+      background: rgba(14,165,233,0.1);
+      border: 1px solid rgba(14,165,233,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .service-card:hover .service-icon-wrap {
+      background: rgba(14,165,233,0.18);
+      box-shadow: 0 0 16px rgba(14,165,233,0.25);
+    }
+
+    /* ─── Process Steps ─────────────────────────────────────────────────────── */
+    .step-card {
+      background: #111e35;
+      border: 1px solid #1a2d4a;
+      border-radius: 12px; padding: 32px 28px;
+      position: relative;
+    }
+    /* Step number — RTL: anchor to top-left (which is the visual end side) */
+    .step-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 3.5rem; font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(14,165,233,0.02));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      position: absolute; top: 20px; left: 24px; /* LTR was right; RTL flips to left */
+      user-select: none;
+    }
+    /* RTL step connector arrow points left (toward next card in reading order) */
+    .step-connector { display: none; }
+    @media (min-width: 1024px) {
+      .step-connector {
+        display: block; position: absolute;
+        top: 50%; left: -32px; /* RTL: connector on left side */
+        width: 32px; height: 1px;
+        background: linear-gradient(270deg, #1a2d4a, transparent);
+        z-index: 1;
+      }
+      .step-wrapper:last-child .step-connector { display: none; }
+    }
+
+    /* ─── Gallery ───────────────────────────────────────────────────────────── */
+    .gallery-grid {
+      columns: 2;
+      column-gap: 12px;
+    }
+    @media (min-width: 768px)  { .gallery-grid { columns: 3; } }
+    @media (min-width: 1280px) { .gallery-grid { columns: 4; } }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid #1a2d4a;
+      position: relative; cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%; display: block;
+      transition: transform 0.4s ease, filter 0.4s ease;
+      filter: brightness(0.85) saturate(0.8);
+    }
+    .gallery-item:hover img { transform: scale(1.04); filter: brightness(1) saturate(1); }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,14,26,0.7) 0%, transparent 50%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; align-items: flex-end; padding: 14px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-label {
+      font-size: 0.75rem; font-weight: 700; color: #e2eaf6;
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Contact Form ──────────────────────────────────────────────────────── */
+    .form-input {
+      width: 100%;
+      background: #111e35;
+      border: 1px solid #1a2d4a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #e2eaf6;
+      font-family: 'Heebo', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      text-align: right; /* RTL text inside inputs */
+    }
+    .form-input::placeholder { color: #3d5272; }
+    .form-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+    .form-label { font-size: 0.82rem; font-weight: 600; color: #7b92b4; margin-bottom: 6px; display: block; }
+
+    /* Select chevron — RTL: arrow on left side */
+    .select-rtl {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%237b92b4' viewBox='0 0 20 20'%3E%3Cpath d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 12px center; /* RTL: chevron on left */
+      background-size: 18px;
+      padding-left: 40px;
+    }
+
+    /* ─── Floating WhatsApp ─────────────────────────────────────────────────── */
+    /* RTL layout: float on bottom-LEFT so it doesn't overlap RTL text flow */
+    #whatsapp-float {
+      position: fixed; bottom: 28px; left: 28px; z-index: 1000;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #25d366;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+    #whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.55); }
+    #whatsapp-float .pulse {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(37,211,102,0.35);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      70%  { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* ─── Divider line ──────────────────────────────────────────────────────── */
+    .h-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #1a2d4a 30%, #1a2d4a 70%, transparent);
+    }
+
+    /* ─── Stat strip ─────────────────────────────────────────────────────────── */
+    .stat-strip {
+      background: #0d1526;
+      border-top: 1px solid #1a2d4a;
+      border-bottom: 1px solid #1a2d4a;
+    }
+
+    /* Footer */
+    footer { border-top: 1px solid #1a2d4a; }
+
+    /* ─── Fade-in on scroll ─────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Mobile nav */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+  </style>
+</head>
+<body class="bg-bg-base font-body antialiased">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NAVBAR — ניווט עליון
+  ════════════════════════════════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shadow-glow-sm group-hover:shadow-glow-md transition-shadow">
+            <i class="fa-solid fa-microchip text-white text-sm"></i>
+          </div>
+          <span class="font-display font-700 text-text-primary text-lg tracking-tight">Nex<span class="text-accent">Core</span></span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden lg:flex items-center gap-8">
+          <a href="#services" class="nav-link">שירותים</a>
+          <a href="#process"  class="nav-link">תהליך</a>
+          <a href="#gallery"  class="nav-link">גלריה</a>
+          <a href="#contact"  class="nav-link">צור קשר</a>
+        </div>
+
+        <!-- Desktop CTA -->
+        <div class="hidden lg:flex items-center gap-4">
+          <a href="#contact" class="btn-primary text-sm py-2.5 px-5">
+            <i class="fa-brands fa-whatsapp"></i> קבל הצעת מחיר חינם
+          </a>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button id="hamburger" class="lg:hidden text-text-muted hover:text-text-primary transition-colors p-2" aria-label="תפריט">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="lg:hidden bg-bg-surface border-t border-bg-border">
+      <div class="px-6 py-4 flex flex-col gap-4">
+        <a href="#services" class="nav-link py-2 text-base" onclick="closeMobileMenu()">שירותים</a>
+        <a href="#process"  class="nav-link py-2 text-base" onclick="closeMobileMenu()">תהליך</a>
+        <a href="#gallery"  class="nav-link py-2 text-base" onclick="closeMobileMenu()">גלריה</a>
+        <a href="#contact"  class="nav-link py-2 text-base" onclick="closeMobileMenu()">צור קשר</a>
+        <a href="#contact" class="btn-primary text-sm mt-2 justify-center" onclick="closeMobileMenu()">
+          <i class="fa-brands fa-whatsapp"></i> קבל הצעת מחיר חינם
+        </a>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HERO — גיבור
+  ════════════════════════════════════════════════════════════════ -->
+  <section class="hero-bg relative min-h-screen flex items-center overflow-hidden">
+
+    <!-- Grid overlay -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none"></div>
+
+    <!-- Scan line animation -->
+    <div class="scan-line"></div>
+
+    <!-- Decorative circles -->
+    <div class="absolute top-1/4 left-0 w-96 h-96 rounded-full"
+         style="background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%); transform: translate(-30%, -30%);"></div>
+    <div class="absolute bottom-0 right-0 w-72 h-72 rounded-full"
+         style="background: radial-gradient(circle, rgba(2,132,199,0.06) 0%, transparent 70%); transform: translate(30%, 30%);"></div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-32 pb-24 relative z-10 w-full">
+      <div class="max-w-3xl">
+
+        <!-- Badge -->
+        <div class="badge mb-6 reveal" style="transition-delay:0s">
+          <i class="fa-solid fa-shield-halved text-xs"></i>
+          כמעט 10 שנות ניסיון מוכח בשטח
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-800 text-text-primary leading-none tracking-tight mb-6 reveal" style="transition-delay:0.1s; font-family:'Heebo',sans-serif; font-weight:800;">
+          IT ארגוני &amp;<br/>
+          <span class="text-accent" style="text-shadow: 0 0 40px rgba(14,165,233,0.35);">תשתיות רשת</span><br/>
+          <span class="text-text-muted">שעובדות באמת.</span>
+        </h1>
+
+        <!-- Sub-headline -->
+        <p class="text-text-muted text-lg lg:text-xl leading-relaxed max-w-xl mb-10 reveal" style="transition-delay:0.2s">
+          מארכיטקטורות רשת מורכבות ומערכות ארגוניות, ועד לאלקטרוניקה מותאמת אישית והדפסת תלת-מימד — פתרונות טכניים מקיפים שמסופקים על-ידי מומחה עם כמעט עשור של ניסיון מעשי.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-wrap gap-4 reveal" style="transition-delay:0.3s">
+          <a href="#contact" class="btn-primary">
+            <i class="fa-solid fa-paper-plane text-sm"></i>
+            התחל פרויקט
+          </a>
+          <a href="#services" class="btn-outline">
+            <i class="fa-solid fa-layer-group text-sm"></i>
+            גלה את השירותים
+          </a>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="flex flex-wrap gap-8 mt-14 reveal" style="transition-delay:0.4s">
+          <div>
+            <div class="font-display text-3xl font-800 text-accent" style="font-family:'Heebo',sans-serif;">10<span class="text-text-muted text-xl">+ שנה</span></div>
+            <div class="text-text-muted text-sm mt-1">ניסיון בשטח</div>
+          </div>
+          <div class="w-px bg-bg-border self-stretch"></div>
+          <div>
+            <div class="font-display text-3xl font-800 text-accent" style="font-family:'Heebo',sans-serif;">5+</div>
+            <div class="text-text-muted text-sm mt-1">תחומי מומחיות</div>
+          </div>
+          <div class="w-px bg-bg-border self-stretch"></div>
+          <div>
+            <div class="font-display text-3xl font-800 text-accent" style="font-family:'Heebo',sans-serif;">100%</div>
+            <div class="text-text-muted text-sm mt-1">פתרונות מותאמים אישית</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-dim flex flex-col items-center gap-2">
+      <span class="text-xs tracking-widest" style="font-size:0.65rem">גלול</span>
+      <div class="w-px h-8 bg-gradient-to-b from-text-dim to-transparent"></div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SERVICES — שירותים
+  ════════════════════════════════════════════════════════════════ -->
+  <section id="services" class="py-24 lg:py-32 bg-bg-base relative">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
+      <!-- Section header -->
+      <div class="max-w-2xl mb-16 reveal">
+        <div class="section-label">שירותים</div>
+        <h2 class="font-display text-3xl lg:text-4xl xl:text-5xl font-700 text-text-primary tracking-tight mb-4" style="font-family:'Heebo',sans-serif; font-weight:800;">
+          שירותים טכניים מקצה לקצה
+        </h2>
+        <p class="text-text-muted text-base lg:text-lg leading-relaxed">
+          כל פרויקט מטופל כאתגר הנדסי ייחודי. אין פתרונות מדף — כל פריסה מתוכננת ובנויה בהתאמה מלאה לדרישותיך.
+        </p>
+      </div>
+
+      <!-- Service cards grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+        <!-- IT & Computer Services — שירותי IT ומחשבים -->
+        <div class="service-card reveal reveal-delay-1">
+          <div class="service-icon-wrap">
+            <i class="fa-solid fa-laptop-code text-accent text-lg"></i>
+          </div>
+          <h3 class="font-display font-700 text-text-primary text-xl mb-3" style="font-family:'Heebo',sans-serif; font-weight:700;">שירותי IT ומחשבים</h3>
+          <p class="text-text-muted text-sm leading-relaxed mb-5">
+            תמיכה מלאה בחומרה ותוכנה עבור מחשבים ניידים, שולחניים ותחנות עבודה. כל תיקון חודר עמוק מתחת לפני השטח.
+          </p>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>אבחון ותיקון מחשבים ניידים ושולחניים</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>שדרוג חומרה (זיכרון, SSD, כרטיס מסך)</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>התקנה, מעבר ואופטימיזציה של מערכת הפעלה</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>תחזוקה מעמיקה וניקוי מערכת</li>
+          </ul>
+        </div>
+
+        <!-- Network Architecture — ארכיטקטורת רשת -->
+        <div class="service-card reveal reveal-delay-2">
+          <div class="service-icon-wrap">
+            <i class="fa-solid fa-network-wired text-accent text-lg"></i>
+          </div>
+          <h3 class="font-display font-700 text-text-primary text-xl mb-3" style="font-family:'Heebo',sans-serif; font-weight:700;">ארכיטקטורת רשת</h3>
+          <p class="text-text-muted text-sm leading-relaxed mb-5">
+            מהגדרת רשת ביתית פשוטה ועד לסביבות ארגוניות מרובות-אתרים — אני מתכנן, מתעד ופורס תשתית רשת חזקה שנבנית לאורך זמן.
+          </p>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>אפיון רשת וסקר אתר</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>תכנון טופולוגיה ותיעוד</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>פריסה והגדרה מלאה</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>סביבות ביתיות עד ארגוניות</li>
+          </ul>
+        </div>
+
+        <!-- Electronics & Custom Projects — אלקטרוניקה ופרויקטים מותאמים -->
+        <div class="service-card reveal reveal-delay-3">
+          <div class="service-icon-wrap">
+            <i class="fa-solid fa-microchip text-accent text-lg"></i>
+          </div>
+          <h3 class="font-display font-700 text-text-primary text-xl mb-3" style="font-family:'Heebo',sans-serif; font-weight:700;">אלקטרוניקה ופרויקטים מותאמים</h3>
+          <p class="text-text-muted text-sm leading-relaxed mb-5">
+            עבודת אלקטרוניקה ברמת רכיב, עבור מי שרוצה יותר מסתם החלפת לוח. מתיקוני הלחמה ועד בניית מערכות מלאות.
+          </p>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>תיקון PCB והלחמה ברמת רכיב</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>תכנות מיקרו-בקרים (Arduino / ESP)</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>פרויקטי חומרה מותאמים אישית</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>אב-טיפוס למערכות משובצות</li>
+          </ul>
+        </div>
+
+        <!-- 3D Printing — הדפסת תלת-מימד -->
+        <div class="service-card reveal reveal-delay-1">
+          <div class="service-icon-wrap">
+            <i class="fa-solid fa-cubes text-accent text-lg"></i>
+          </div>
+          <h3 class="font-display font-700 text-text-primary text-xl mb-3" style="font-family:'Heebo',sans-serif; font-weight:700;">הדפסת תלת-מימד</h3>
+          <p class="text-text-muted text-sm leading-relaxed mb-5">
+            ייצור תוספי בדיוק גבוה עבור אבות-טיפוס פונקציונליים, מכלים מותאמים, חלקי חילוף ופרויקטים יצירתיים.
+          </p>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>עיצוב חלקים מותאמים ופריסה לסליסר</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>הדפסת FDM במגוון חומרים</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>מכלים ומסגרות פונקציונליים</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>אבות-טיפוס מהירים לפרויקטים</li>
+          </ul>
+        </div>
+
+        <!-- Web Development — פיתוח אתרים -->
+        <div class="service-card reveal reveal-delay-2 md:col-span-2 xl:col-span-1">
+          <div class="service-icon-wrap">
+            <i class="fa-solid fa-code text-accent text-lg"></i>
+          </div>
+          <h3 class="font-display font-700 text-text-primary text-xl mb-3" style="font-family:'Heebo',sans-serif; font-weight:700;">פיתוח אתרים</h3>
+          <p class="text-text-muted text-sm leading-relaxed mb-5">
+            דפי נחיתה ונוכחות דיגיטלית בעלי המרה גבוהה, ייצוגיים וייחודיים ויזואלית — בנויים ללקוחות פרטיים ועסקים. אין תבניות — כל אתר נבנה מאפס.
+          </p>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>דפי נחיתה ואתרי עסק מותאמים</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>עיצוב מובייל-פירסט, רספונסיבי</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>ביצועים ו-SEO מיטביים</li>
+            <li class="flex items-center gap-2 text-sm text-text-muted"><i class="fa-solid fa-check text-accent text-xs w-3 shrink-0"></i>מותאם להמרה וזהות המותג</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PROCESS — תהליך העבודה
+  ════════════════════════════════════════════════════════════════ -->
+  <section id="process" class="py-24 lg:py-32 bg-bg-surface relative">
+
+    <div class="h-line absolute top-0 left-0 right-0"></div>
+    <div class="h-line absolute bottom-0 left-0 right-0"></div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
+      <!-- Section header -->
+      <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+        <div class="section-label justify-center">
+          <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
+          מתודולוגיה
+        </div>
+        <h2 class="text-3xl lg:text-4xl xl:text-5xl font-700 text-text-primary tracking-tight mb-4" style="font-family:'Heebo',sans-serif; font-weight:800;">
+          מאפיון ועד למוצר מוגמר
+        </h2>
+        <p class="text-text-muted text-base lg:text-lg leading-relaxed">
+          תהליך מובנה ושקוף מבטיח שכל פרויקט מסופק לפי המפרט, בזמן, וללא הפתעות.
+        </p>
+      </div>
+
+      <!-- Steps grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- Step 1 -->
+        <div class="step-wrapper relative reveal reveal-delay-1">
+          <div class="step-card h-full">
+            <div class="step-number">01</div>
+            <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+              <i class="fa-solid fa-magnifying-glass text-accent text-sm"></i>
+            </div>
+            <h3 class="font-700 text-text-primary text-lg mb-3 pl-10" style="font-family:'Heebo',sans-serif; font-weight:700;">אפיון וייעוץ</h3>
+            <p class="text-text-muted text-sm leading-relaxed">
+              צלילה טכנית מעמיקה לצרכים, לסביבה, לאילוצים ולמטרות המדויקות שלך. לא לוקחים דבר כמובן מאליו.
+            </p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-wrapper relative reveal reveal-delay-2">
+          <div class="step-card h-full">
+            <div class="step-number">02</div>
+            <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+              <i class="fa-solid fa-drafting-compass text-accent text-sm"></i>
+            </div>
+            <h3 class="font-700 text-text-primary text-lg mb-3 pl-10" style="font-family:'Heebo',sans-serif; font-weight:700;">תכנון וארכיטקטורה מותאמת</h3>
+            <p class="text-text-muted text-sm leading-relaxed">
+              הצעה שקופה עם תכנית ארכיטקטורה ברורה, בחירת רכיבים, לוח זמנים ופירוט עלויות — ללא עמלות נסתרות.
+            </p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-wrapper relative reveal reveal-delay-3">
+          <div class="step-card h-full">
+            <div class="step-number">03</div>
+            <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+              <i class="fa-solid fa-gears text-accent text-sm"></i>
+            </div>
+            <h3 class="font-700 text-text-primary text-lg mb-3 pl-10" style="font-family:'Heebo',sans-serif; font-weight:700;">ביצוע, הקמה והגדרות מערכת</h3>
+            <p class="text-text-muted text-sm leading-relaxed">
+              יישום מעשי עם תקשורת רציפה. אתה מעודכן בכל שלב של הבנייה וההגדרה.
+            </p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-wrapper relative reveal reveal-delay-4">
+          <div class="step-card h-full">
+            <div class="step-number">04</div>
+            <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+              <i class="fa-solid fa-box-open text-accent text-sm"></i>
+            </div>
+            <h3 class="font-700 text-text-primary text-lg mb-3 pl-10" style="font-family:'Heebo',sans-serif; font-weight:700;">מסירה וליווי שוטף</h3>
+            <p class="text-text-muted text-sm leading-relaxed">
+              מסירה נקייה עם תיעוד מלא וסיור הדרכה. תמיכה לאחר המסירה זמינה לכל פרויקט שסופק.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GALLERY — גלריית עבודות
+  ════════════════════════════════════════════════════════════════ -->
+  <section id="gallery" class="py-24 lg:py-32 bg-bg-base">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+
+      <!-- Section header -->
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12 reveal">
+        <div>
+          <div class="section-label">תיק עבודות</div>
+          <h2 class="text-3xl lg:text-4xl font-700 text-text-primary tracking-tight" style="font-family:'Heebo',sans-serif; font-weight:800;">
+            עבודות ופרויקטים נבחרים
+          </h2>
+        </div>
+        <p class="text-text-muted text-sm max-w-xs leading-relaxed">
+          מבחר של פריסות, בניות ופרויקטי הנדסה אמיתיים מכלל תחומי השירות.
+        </p>
+      </div>
+
+      <!-- Masonry Gallery -->
+      <div class="gallery-grid reveal">
+
+        <!-- Gallery item 1 — Network Rack -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop&q=80"
+               alt="תשתית שרתים ורשת" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-network-wired text-accent ml-1 text-xs"></i> ארון רשת</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 2 — PCB / Electronics -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80"
+               alt="תיקון אלקטרוניקה PCB" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-microchip text-accent ml-1 text-xs"></i> אלקטרוניקה</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 3 — 3D Print -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&auto=format&fit=crop&q=80"
+               alt="הדפסת תלת-מימד חלקים מותאמים" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-cubes text-accent ml-1 text-xs"></i> הדפסת 3D</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 4 — Server Room -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&auto=format&fit=crop&q=80"
+               alt="חדר שרתים מרכז נתונים" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-server text-accent ml-1 text-xs"></i> תשתית</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 5 — Laptop Repair -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80"
+               alt="תיקון חומרת מחשב נייד" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-laptop text-accent ml-1 text-xs"></i> שירותי IT</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 6 — Cabling -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1606765962248-7ff407b51667?w=600&auto=format&fit=crop&q=80"
+               alt="כבלים מובנים ורשת" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-ethernet text-accent ml-1 text-xs"></i> כבלים מובנים</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 7 — Arduino / Microcontroller -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1553406830-ef2513450d76?w=600&auto=format&fit=crop&q=80"
+               alt="פרויקט מיקרו-בקר מותאם" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-microchip text-accent ml-1 text-xs"></i> בנייה מותאמת</span>
+          </div>
+        </div>
+
+        <!-- Gallery item 8 — Web / Code -->
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&auto=format&fit=crop&q=80"
+               alt="פיתוח אתרים קוד" loading="lazy" />
+          <div class="gallery-overlay">
+            <span class="gallery-label"><i class="fa-solid fa-code text-accent ml-1 text-xs"></i> פיתוח אתרים</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONTACT — צור קשר
+  ════════════════════════════════════════════════════════════════ -->
+  <section id="contact" class="py-24 lg:py-32 bg-bg-surface relative">
+
+    <div class="h-line absolute top-0 left-0 right-0"></div>
+
+    <!-- Decorative glow — RTL: anchored to left -->
+    <div class="absolute bottom-0 left-0 w-96 h-96 pointer-events-none"
+         style="background: radial-gradient(circle, rgba(14,165,233,0.05) 0%, transparent 70%); transform: translate(-20%, 20%);"></div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+
+        <!-- Right (visually) — Info; in RTL source order it comes first = appears on right -->
+        <div class="reveal">
+          <div class="section-label">צור קשר</div>
+          <h2 class="text-3xl lg:text-4xl xl:text-5xl font-700 text-text-primary tracking-tight mb-6" style="font-family:'Heebo',sans-serif; font-weight:800;">
+            בואו נבנה<br/>משהו יחד
+          </h2>
+          <p class="text-text-muted text-base lg:text-lg leading-relaxed mb-10">
+            יש לך פרויקט בראש, צריך תיקון, או מעוניין בייעוץ תשתיות מלא? מלא את הטופס וההודעה שלך תישלח ישירות בוואטסאפ לקבלת מענה מהיר ואישי.
+          </p>
+
+          <!-- Contact highlights -->
+          <div class="space-y-5">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                <i class="fa-brands fa-whatsapp text-accent text-sm"></i>
+              </div>
+              <div>
+                <div class="text-text-primary font-500 text-sm">ישיר בוואטסאפ</div>
+                <div class="text-text-muted text-sm">מענה מהיר, בדרך כלל תוך שעה</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-clock text-accent text-sm"></i>
+              </div>
+              <div>
+                <div class="text-text-primary font-500 text-sm">שעות פעילות</div>
+                <div class="text-text-muted text-sm">ראשון – שישי, 9:00 – 20:00</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-location-dot text-accent text-sm"></i>
+              </div>
+              <div>
+                <div class="text-text-primary font-500 text-sm">אזור שירות</div>
+                <div class="text-text-muted text-sm">פנים, מרחוק, ושיגור ארצי</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Left (visually) — Form -->
+        <div class="reveal reveal-delay-2">
+          <div class="bg-bg-card border border-bg-border rounded-2xl p-8 shadow-card">
+            <h3 class="font-700 text-text-primary text-xl mb-6" style="font-family:'Heebo',sans-serif; font-weight:700;">שלח הודעה בוואטסאפ</h3>
+
+            <!-- Name -->
+            <div class="mb-5">
+              <label for="contact-name" class="form-label">שם מלא *</label>
+              <input type="text" id="contact-name" class="form-input" placeholder="לדוגמה: ישראל ישראלי" required />
+            </div>
+
+            <!-- Service -->
+            <div class="mb-5">
+              <label for="contact-service" class="form-label">שירות מבוקש *</label>
+              <select id="contact-service" class="form-input select-rtl">
+                <option value="" disabled selected>בחר שירות…</option>
+                <option value="שירותי IT ומחשבים">שירותי IT ומחשבים</option>
+                <option value="ארכיטקטורת רשת">ארכיטקטורת רשת</option>
+                <option value="אלקטרוניקה ופרויקטים מותאמים">אלקטרוניקה ופרויקטים מותאמים</option>
+                <option value="הדפסת תלת-מימד">הדפסת תלת-מימד</option>
+                <option value="פיתוח אתרים">פיתוח אתרים</option>
+                <option value="אחר / לא בטוח">אחר / לא בטוח</option>
+              </select>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-6">
+              <label for="contact-message" class="form-label">פרטי הפרויקט *</label>
+              <textarea id="contact-message" class="form-input" rows="4"
+                placeholder="תאר את הפרויקט, הבעיה או השאלה שלך. ככל שתהיה יותר מפורט, כך ייטב…"></textarea>
+            </div>
+
+            <!-- Submit button -->
+            <button onclick="sendToWhatsApp()" class="btn-primary w-full justify-center text-base">
+              <i class="fa-brands fa-whatsapp text-lg"></i>
+              שלח בוואטסאפ
+            </button>
+
+            <p class="text-text-dim text-xs text-center mt-4">
+              הלחיצה תפתח את וואטסאפ עם ההודעה מוכנה. לא נשמרים נתונים.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOOTER — כותרת תחתונה
+  ════════════════════════════════════════════════════════════════ -->
+  <footer class="bg-bg-base py-10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+            <i class="fa-solid fa-microchip text-white text-xs"></i>
+          </div>
+          <span class="font-display font-700 text-text-primary tracking-tight">Nex<span class="text-accent">Core</span> Systems</span>
+        </div>
+
+        <!-- Copyright -->
+        <p class="text-text-dim text-sm text-center">
+          &copy; <span id="footer-year"></span> NexCore Systems. כל הזכויות שמורות.
+        </p>
+
+        <!-- Quick links -->
+        <div class="flex items-center gap-6">
+          <a href="#services" class="text-text-dim hover:text-text-muted text-sm transition-colors">שירותים</a>
+          <a href="#gallery"  class="text-text-dim hover:text-text-muted text-sm transition-colors">גלריה</a>
+          <a href="#contact"  class="text-text-dim hover:text-text-muted text-sm transition-colors">צור קשר</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FLOATING WHATSAPP BUTTON
+       RTL: positioned bottom-LEFT so it doesn't overlap Hebrew text
+  ════════════════════════════════════════════════════════════════ -->
+  <!--
+    חשוב: החלף את YOUR_PHONE_NUMBER במספר הטלפון המלא שלך
+    כולל קידומת מדינה, ללא רווחים או מקפים.
+    דוגמה לישראל: 972501234567
+  -->
+  <a id="whatsapp-float" href="https://wa.me/YOUR_PHONE_NUMBER" target="_blank" rel="noopener noreferrer"
+     title="שוחח בוואטסאפ" aria-label="צור קשר בוואטסאפ">
+    <div class="pulse"></div>
+    <i class="fa-brands fa-whatsapp text-white text-2xl relative z-10"></i>
+  </a>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ════════════════════════════════════════════════════════════════ -->
+  <script>
+    // ─── Footer year ─────────────────────────────────────────────────────────
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ─── Navbar scroll effect ─────────────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ─── Mobile menu toggle ───────────────────────────────────────────────────
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+      const icon = hamburger.querySelector('i');
+      icon.className = mobileMenu.classList.contains('open')
+        ? 'fa-solid fa-xmark text-lg'
+        : 'fa-solid fa-bars text-lg';
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.querySelector('i').className = 'fa-solid fa-bars text-lg';
+    }
+
+    // ─── Scroll reveal ────────────────────────────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ─── WhatsApp contact form ────────────────────────────────────────────────
+    /**
+     * לוכד את שדות הטופס, מעצב מחרוזת הודעה בעברית,
+     * מקודד אותה לכתובת URL ופותח את קישור WhatsApp API.
+     *
+     * חשוב: החלף YOUR_PHONE_NUMBER במספר האמיתי שלך.
+     * פורמט: קידומת מדינה + מספר, ללא רווחים. לדוגמה: "972501234567"
+     */
+    function sendToWhatsApp() {
+      const name    = document.getElementById('contact-name').value.trim();
+      const service = document.getElementById('contact-service').value;
+      const message = document.getElementById('contact-message').value.trim();
+
+      // ── אימות בסיסי ──
+      if (!name) {
+        flashError('contact-name');
+        return;
+      }
+      if (!service) {
+        flashError('contact-service');
+        return;
+      }
+      if (!message) {
+        flashError('contact-message');
+        return;
+      }
+
+      // ── עיצוב הודעת וואטסאפ בעברית ──
+      const formattedText =
+        `שלום! מצאתי אותך דרך האתר ואני מעוניין/ת בשירותים שלך.\n\n` +
+        `*שם:* ${name}\n` +
+        `*שירות מבוקש:* ${service}\n\n` +
+        `*פרטי הפרויקט:*\n${message}`;
+
+      // ── קידוד לכתובת URL ──
+      const encoded = encodeURIComponent(formattedText);
+
+      // ⚠️  החלף "YOUR_PHONE_NUMBER" במספר האמיתי שלך (לדוגמה: "972501234567")
+      const whatsappURL = `https://wa.me/YOUR_PHONE_NUMBER?text=${encoded}`;
+
+      // ── פתח בלשונית חדשה ──
+      window.open(whatsappURL, '_blank');
+    }
+
+    /**
+     * מדגיש בצורה קצרה שדה לא תקין בגבול אדום,
+     * ומחזיר את הסגנון המקורי לאחר 2 שניות.
+     */
+    function flashError(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.style.borderColor = '#ef4444';
+      field.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.15)';
+      field.focus();
+      setTimeout(() => {
+        field.style.borderColor = '';
+        field.style.boxShadow   = '';
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
